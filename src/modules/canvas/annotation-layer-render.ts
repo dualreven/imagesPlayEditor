@@ -13,6 +13,7 @@ interface RenderAnnotationLayerOptions {
   annotations: Map<string, Annotation>;
   selectedAnnotationId: string | null;
   visibleAnnotationIds: Set<string> | null;
+  selectable: boolean;
   editable: boolean;
   isAnnotationSelected: (annotationId: string) => boolean;
   getStyleReferenceSize: () => number;
@@ -65,6 +66,7 @@ export function renderAnnotationLayer(options: RenderAnnotationLayerOptions) {
     annotations,
     selectedAnnotationId,
     visibleAnnotationIds,
+    selectable,
     editable,
     isAnnotationSelected,
     getStyleReferenceSize,
@@ -83,6 +85,10 @@ export function renderAnnotationLayer(options: RenderAnnotationLayerOptions) {
     }
     node.on("click tap", (event) => {
       event.cancelBubble = true;
+      if (!selectable) {
+        setLastTextClick(null);
+        return;
+      }
       onAnnotationSelected(annotation.id);
       if (annotation.kind !== "text" || !editable) {
         setLastTextClick(null);

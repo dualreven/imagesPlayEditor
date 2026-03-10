@@ -212,6 +212,7 @@ export class CanvasController {
       annotations: this.annotations,
       selectedAnnotationId: this.selectedAnnotationId,
       visibleAnnotationIds: this.visibleAnnotationIds,
+      selectable: this.tool === "select",
       editable: this.canEditAnnotations(),
       isAnnotationSelected: (annotationId) => this.isAnnotationSelected(annotationId),
       getStyleReferenceSize: () => this.getStyleReferenceSize(),

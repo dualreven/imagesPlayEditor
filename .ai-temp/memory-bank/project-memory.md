@@ -44,6 +44,7 @@
 - 画布视口与缩放: `src/modules/canvas/stage-viewport.ts`（场景指针坐标、自适应缩放、原始比例导出等视口逻辑）。
 - 画布无图态自适应: `stage-viewport.applyViewportStageSize` + `canvas.css` 的 `stage-container` 盒模型修正，确保编辑区随窗口变化且不产生伪滚动条。
 - 画布交互策略: `src/modules/canvas/interaction-policy.ts`（选中可编辑判定统一出口）。
+- 标注点击选中门禁: `src/modules/canvas/annotation-layer-render.ts` 通过 `selectable` 控制，仅 `select` 工具允许点击标注触发选中。
 - 画布编辑控制分层: `src/modules/canvas/editing-controls-{box,arrow,text}.ts` + `editing-controls.ts` 调度（不同标注编辑逻辑分离）。
 - 导出能力: `src/modules/export/*`, `src/modules/interpreter/*`。
 - 导出模块分层: `src/modules/export/{export-zip,export-ui}.ts`（zip生成与UI反馈流程拆分）。

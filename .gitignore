@@ -2,12 +2,20 @@ node_modules/
 dist/
 .vscode/
 .idea/
+.ai-temp/
 
 src-tauri/target/
 src-tauri/gen/
 src-tauri/.cargo/
 src-tauri/tauri.auto-dev.conf.json
+src-tauri/tauri.auto-build.conf.json
 
 *.log
 *.tmp
 *.bak
+*.temp
+*.swp
+*.swo
+*.pid
+*.seed
+Thumbs.db

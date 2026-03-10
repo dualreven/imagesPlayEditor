@@ -1,0 +1,43 @@
+#selected-info {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid #d3e2f0;
+  border-radius: 10px;
+  background: #f5faff;
+  color: #244260;
+  font-size: 12px;
+}
+
+.export-btn {
+  width: 100%;
+  min-height: 38px;
+  margin: 8px 0;
+  background: linear-gradient(180deg, #0b8ea5, #0e6f80);
+}
+
+.export-btn.is-busy {
+  background: #0666be;
+  border-color: #0666be;
+}
+
+.export-feedback {
+  margin: 0 0 10px 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #f7faff;
+  color: #334155;
+  font-size: 12px;
+}
+
+.export-feedback[data-kind="success"] {
+  border-color: #9bd8a2;
+  background: #ecfff0;
+  color: #1f6b2b;
+}
+
+.export-feedback[data-kind="error"] {
+  border-color: #f5b1b1;
+  background: #fff0f0;
+  color: #9f1239;
+}

@@ -1,0 +1,26 @@
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.frame-actions-row button,
+.action-actions-row button {
+  padding: 5px 8px;
+  font-size: 12px;
+  border-radius: 7px;
+}
+
+.actions-divider {
+  height: 1px;
+  margin: 4px 0 8px 0;
+  background: linear-gradient(90deg, transparent, #c8d5ea, transparent);
+}

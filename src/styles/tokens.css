@@ -1,0 +1,16 @@
+:root {
+  --bg: #f3f6fb;
+  --card: #ffffff;
+  --text: #1c2430;
+  --muted: #5a6679;
+  --line: #d8deeb;
+  --primary: #0b7adf;
+
+  --accent-500: #0e7490;
+  --accent-600: #0b5f77;
+  --accent-700: #094b5f;
+  --surface-100: #f7fbff;
+  --surface-200: #eef5fc;
+  --surface-300: #d7e6f5;
+  --danger-500: #b42318;
+}

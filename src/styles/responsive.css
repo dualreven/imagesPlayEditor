@@ -1,0 +1,30 @@
+@media (max-width: 1120px) {
+  .layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .side-panel {
+    width: 100%;
+  }
+
+  .canvas-panel,
+  .side-panel {
+    min-height: 0;
+  }
+
+  .toolbar-tool-group {
+    min-width: 100%;
+  }
+
+  .toolbar-style-group button {
+    margin-left: 0;
+  }
+
+  .panel-title-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

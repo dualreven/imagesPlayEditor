@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.vscode/
+.idea/
+
+src-tauri/target/
+src-tauri/gen/
+src-tauri/.cargo/
+src-tauri/tauri.auto-dev.conf.json
+
+*.log
+*.tmp
+*.bak

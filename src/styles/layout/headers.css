@@ -1,0 +1,40 @@
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-header h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.panel-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.panel-title-row h2,
+.panel-title-row h3 {
+  margin: 0;
+}
+
+.panel-chip {
+  border: 1px solid #c3d7eb;
+  border-radius: 999px;
+  background: #f1f8ff;
+  color: #21537c;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 9px;
+  white-space: nowrap;
+}
+
+.status {
+  color: var(--muted);
+  font-size: 13px;
+}

@@ -1,0 +1,48 @@
+.canvas-shell {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  height: auto;
+  max-height: none;
+  margin-top: 10px;
+  border: 1px dashed #9bb4df;
+  border-radius: 10px;
+  overflow: auto;
+  background: linear-gradient(135deg, #eef4ff 0%, #fbfdff 100%);
+}
+
+.text-input-overlay {
+  position: absolute;
+  z-index: 20;
+  min-width: 180px;
+  max-width: 420px;
+  min-height: 40px;
+  resize: both;
+  border: 1px solid #93c5fd;
+  border-radius: 8px;
+  padding: 6px 8px;
+  background: #ffffffee;
+  outline: none;
+  box-shadow: 0 8px 18px #0f172a1a;
+  font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+  line-height: 1.4;
+}
+
+.stage-container {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 8px;
+  overflow: hidden;
+}
+
+.stage-container .konvajs-content {
+  max-width: 100%;
+  max-height: 100%;
+}

@@ -1,0 +1,62 @@
+.style-inline-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  width: fit-content;
+  max-width: fit-content;
+  flex: 0 0 auto;
+  border: 1px solid #d0dcf1;
+  border-radius: 10px;
+  background: #f6f9ff;
+  padding: 5px 6px;
+}
+
+.toolbar-style-group {
+  width: 100%;
+  max-width: 100%;
+  border-color: #bfd6ea;
+  background: #f4f9ff;
+}
+
+.style-inline-group label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.toolbar-style-group label {
+  font-weight: 600;
+  color: #33506f;
+}
+
+.style-inline-group label.color-only {
+  gap: 0;
+}
+
+.style-inline-group input[type="number"] {
+  width: 58px;
+  min-width: 58px;
+  min-height: 28px;
+  padding: 1px 5px;
+}
+
+.style-inline-group input[type="color"] {
+  width: 40px;
+  min-width: 40px;
+  min-height: 28px;
+  padding: 1px;
+}
+
+.style-inline-group button {
+  padding: 5px 10px;
+  min-height: 30px;
+  font-size: 12px;
+}
+
+.toolbar-style-group button {
+  margin-left: auto;
+}

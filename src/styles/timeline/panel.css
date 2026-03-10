@@ -1,0 +1,39 @@
+.frame-list-panel {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+  display: grid;
+  align-content: start;
+  grid-auto-rows: max-content;
+  gap: 10px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.frame-desc-editor {
+  margin-top: 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #f8fbff;
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.frame-desc-editor.is-hidden {
+  display: none;
+}
+
+.frame-desc-editor h3 {
+  margin: 0;
+  font-size: 13px;
+}
+
+.frame-desc-editor textarea {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  min-height: 110px;
+  padding: 8px;
+  resize: vertical;
+  font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+}

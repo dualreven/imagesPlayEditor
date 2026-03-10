@@ -1,0 +1,35 @@
+.file-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px dashed #8aa4d6;
+  font-size: 13px;
+  max-width: 33%;
+}
+
+.toolbar-file-label {
+  max-width: none;
+  min-height: 38px;
+  border-style: solid;
+  border-color: #b9d1ea;
+  background: #f2f8ff;
+}
+
+.file-label-text {
+  font-weight: 600;
+  color: #1e3a5f;
+}
+
+.file-label input[type="file"] {
+  width: 150px;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.toolbar-file-label input[type="file"] {
+  width: 180px;
+  max-width: 180px;
+}

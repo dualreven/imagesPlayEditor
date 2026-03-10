@@ -1,0 +1,107 @@
+.btn-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  font-size: 12px;
+  line-height: 1;
+}
+
+button .btn-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.2);
+  font-size: 11px;
+}
+
+:is(
+  .toolbar-tool-group button,
+  .toolbar-export-btn,
+  .toolbar-settings-btn,
+  .toolbar-style-group button,
+  .frame-actions-row button,
+  .action-actions-row button,
+  .export-btn
+) {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid transparent;
+  background: linear-gradient(180deg, var(--accent-500), var(--accent-600));
+  border-radius: 9px;
+  box-shadow: 0 2px 8px rgba(14, 116, 144, 0.25);
+  transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+}
+
+.toolbar-tool-group button {
+  border-color: rgba(6, 71, 88, 0.45);
+}
+
+.toolbar-tool-group button.active {
+  background: linear-gradient(180deg, #0a98ba, #086f8e);
+  border-color: #c7efff;
+  box-shadow: 0 0 0 1px rgba(199, 239, 255, 0.9), 0 8px 20px rgba(6, 111, 142, 0.42);
+  transform: translateY(-1px);
+}
+
+.toolbar-tool-group button.active::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 2px;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.toolbar-tool-group button.active .btn-icon {
+  background: rgba(255, 255, 255, 0.32);
+  color: #e6fbff;
+}
+
+:is(
+  .toolbar-tool-group button,
+  .toolbar-export-btn,
+  .toolbar-settings-btn,
+  .toolbar-style-group button,
+  .frame-actions-row button,
+  .action-actions-row button,
+  .export-btn
+):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(14, 116, 144, 0.32);
+}
+
+:is(
+  .toolbar-tool-group button,
+  .toolbar-export-btn,
+  .toolbar-settings-btn,
+  .toolbar-style-group button,
+  .frame-actions-row button,
+  .action-actions-row button,
+  .export-btn
+):active {
+  transform: translateY(0);
+}
+
+.toolbar-export-btn {
+  background: linear-gradient(180deg, #0a9f7f, #0a7e66);
+  box-shadow: 0 2px 8px rgba(10, 126, 102, 0.28);
+}
+
+.toolbar-export-btn:hover {
+  box-shadow: 0 4px 12px rgba(10, 126, 102, 0.36);
+}
+
+.toolbar-settings-btn {
+  background: linear-gradient(180deg, #4b5563, #374151);
+  box-shadow: 0 2px 8px rgba(55, 65, 81, 0.3);
+}
+
+.toolbar-settings-btn:hover {
+  box-shadow: 0 4px 12px rgba(55, 65, 81, 0.36);
+}

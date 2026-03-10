@@ -1,0 +1,90 @@
+.frame-card {
+  border: 1px solid #c9d7f3;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #f7faff 0%, #f2f7ff 100%);
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
+}
+
+.frame-card.is-selected {
+  border-color: #0b7adf;
+  box-shadow: inset 0 0 0 1px #0b7adf;
+}
+
+.frame-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid #d7e4fb;
+  background: linear-gradient(90deg, #0b7adf 0%, #3da0ff 100%);
+  border-top-left-radius: 11px;
+  border-top-right-radius: 11px;
+  color: #fff;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.frame-header-main {
+  display: grid;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.frame-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.frame-title-text {
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 0;
+}
+
+.frame-title-actions {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.frame-desc-hint {
+  font-size: 11px;
+  opacity: 0.9;
+}
+
+:is(.frame-exclusive-btn, .frame-edit-btn, .frame-delete-btn) {
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border-radius: 7px;
+  padding: 2px 7px;
+  font-size: 10px;
+  min-height: auto;
+}
+
+.frame-exclusive-btn.is-active {
+  background: rgba(255, 255, 255, 0.32);
+}
+
+.frame-exclusive-btn {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+:is(.frame-edit-btn, .frame-delete-btn):hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+#delete-action-btn {
+  background: linear-gradient(180deg, #d03d2f, var(--danger-500));
+  box-shadow: 0 2px 8px rgba(180, 35, 24, 0.3);
+}
+
+#delete-action-btn:hover {
+  box-shadow: 0 4px 12px rgba(180, 35, 24, 0.36);
+}

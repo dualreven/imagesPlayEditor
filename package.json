@@ -4,7 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "ensure:build-info": "node scripts/ensure-build-info.mjs",
+    "predev": "npm run ensure:build-info",
     "dev": "vite",
+    "prelint:ts": "npm run ensure:build-info",
     "prebuild": "node scripts/sync-build-info.mjs",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",

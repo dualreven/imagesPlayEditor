@@ -3,6 +3,7 @@ dist/
 .vscode/
 .idea/
 .ai-temp/
+src/generated/
 
 src-tauri/target/
 src-tauri/gen/

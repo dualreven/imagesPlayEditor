@@ -1,5 +1,6 @@
 import type { ExportFrame } from "../models";
 import { buildStepFileStem } from "../settings";
+import { renderAntIcon } from "../ui";
 import { exportFramesAsZip } from "./export-zip";
 
 type ExportFeedbackKind = "info" | "success" | "error";
@@ -17,9 +18,12 @@ export interface RunExportWithUiOptions {
 
 export async function runExportWithUi(options: RunExportWithUiOptions) {
   const { frames, filePattern, outputDir, exportBtn, setStatus, setExportFeedback, renderFrame, onFinalize } = options;
+  const setButtonContent = (label: string) => {
+    exportBtn.innerHTML = `<span class="export-btn-text">${label}</span>${renderAntIcon("export")}`;
+  };
   exportBtn.disabled = true;
   exportBtn.classList.add("is-busy");
-  exportBtn.textContent = `导出中 0/${frames.length}`;
+  setButtonContent(`导出中 0/${frames.length}`);
   setExportFeedback("正在准备导出...", "info");
   setStatus(`正在导出 ${frames.length} 张帧图`);
 
@@ -28,7 +32,7 @@ export async function runExportWithUi(options: RunExportWithUiOptions) {
       filePattern,
       outputDir,
       onProgress: (current, total) => {
-        exportBtn.textContent = `导出中 ${current}/${total}`;
+        setButtonContent(`导出中 ${current}/${total}`);
         setExportFeedback(`正在生成第 ${current}/${total} 帧：${buildStepFileStem(filePattern, current)}.png`, "info");
       }
     });
@@ -47,7 +51,7 @@ export async function runExportWithUi(options: RunExportWithUiOptions) {
   } finally {
     exportBtn.disabled = false;
     exportBtn.classList.remove("is-busy");
-    exportBtn.textContent = "导出步骤图 ZIP";
+    setButtonContent("导出步骤图 ZIP");
     onFinalize();
   }
 }

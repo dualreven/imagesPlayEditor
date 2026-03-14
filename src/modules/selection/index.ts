@@ -5,7 +5,7 @@ interface SelectionIdsState {
 }
 
 interface FocusedSelectionState extends SelectionIdsState {
-  showCurrentFrameOnly: boolean;
+  focusedFrameId: string | null;
 }
 
 export function hasSelection(state: SelectionIdsState) {
@@ -32,6 +32,6 @@ export function clearSelection(state: FocusedSelectionState, options: { resetFoc
   state.selectedFrameId = null;
   clearActionSelection(state);
   if (options.resetFocusedView) {
-    state.showCurrentFrameOnly = false;
+    state.focusedFrameId = null;
   }
 }

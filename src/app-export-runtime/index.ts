@@ -26,9 +26,9 @@ export function createExportRuntime(options: CreateExportRuntimeOptions): Export
     buildExportFrames(state.frames, state.actions, state.annotations, state.clearBeforeFrameIds);
 
   const resolveFocusedVisibleAnnotationIds = (frames: ExportFrame[]) => {
-    if (!state.showCurrentFrameOnly || !state.selectedFrameId) return null;
-    const frame = frames.find((item) => item.frameId === state.selectedFrameId);
-    return frame ? frame.visibleAnnotationIds : [];
+    if (!state.focusedFrameId) return null;
+    const frame = frames.find((item) => item.frameId === state.focusedFrameId);
+    return frame ? frame.visibleAnnotationIds : null;
   };
 
   const syncCanvasSelectionFromAction = () => {

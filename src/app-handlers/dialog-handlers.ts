@@ -2,9 +2,11 @@ import {
   closeSettingsDialog,
   getSaveModeText,
   normalizeExportSettings,
+  openLocalBuildHistoryFile,
   openSettingsDialog,
   refreshSettingsPatternPreview,
   saveExportSettings,
+  selectSettingsTab,
   updateFrameDescription
 } from "@modules";
 import type { CreateAppEventHandlersOptions, EventCallbacks } from "./types";
@@ -15,8 +17,10 @@ type DialogCallbacks = Pick<
   | "onCloseExportDialog"
   | "onOpenSettings"
   | "onCloseSettings"
+  | "onSettingTabSelect"
   | "onSettingPatternInput"
   | "onSettingSave"
+  | "onOpenUpdateHistoryFile"
   | "onFrameDescCancel"
   | "onFrameDescSave"
 >;
@@ -26,10 +30,18 @@ export function createDialogHandlers(options: CreateAppEventHandlersOptions): Di
     state,
     exportDialog,
     settingsDialog,
+    settingTabButtons,
     settingSavePath,
     settingNamePattern,
     settingPatternTip,
     settingPreview,
+    settingVersionLineMain,
+    settingVersionLineDetail,
+    settingVersionLineTime,
+    settingUpdateList,
+    settingHistoryList,
+    settingHistoryFilePath,
+    settingOpenHistoryBtn,
     frameDescInput,
     getEditingFrameDescId,
     refresh,
@@ -51,20 +63,47 @@ export function createDialogHandlers(options: CreateAppEventHandlersOptions): Di
       openSettingsDialog(
         {
           dialog: settingsDialog,
+          tabButtons: settingTabButtons,
           savePathInput: settingSavePath,
+          saveBtn: options.settingSaveBtn,
           patternInput: settingNamePattern,
           patternTip: settingPatternTip,
-          preview: settingPreview
+          preview: settingPreview,
+          versionLineMain: settingVersionLineMain,
+          versionLineDetail: settingVersionLineDetail,
+          versionLineTime: settingVersionLineTime,
+          updateList: settingUpdateList,
+          historyList: settingHistoryList,
+          historyFilePath: settingHistoryFilePath,
+          openHistoryBtn: settingOpenHistoryBtn
         },
         state.exportSettings
       ),
     onCloseSettings: () => closeSettingsDialog(settingsDialog),
+    onSettingTabSelect: (tabId) =>
+      selectSettingsTab(
+        {
+          dialog: settingsDialog,
+          tabButtons: settingTabButtons,
+          saveBtn: options.settingSaveBtn
+        },
+        tabId
+      ),
     onSettingPatternInput: () => {
       refreshSettingsPatternPreview({
         patternInput: settingNamePattern,
         patternTip: settingPatternTip,
         preview: settingPreview
       });
+    },
+    onOpenUpdateHistoryFile: async () => {
+      try {
+        await openLocalBuildHistoryFile();
+        setStatus("已打开本地更新文件");
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "打开本地更新文件失败";
+        setStatus(message);
+      }
     },
     onSettingSave: () => {
       if (

@@ -1,7 +1,15 @@
 import { spawn } from "node:child_process";
-import { execSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
+import {
+  assertCleanGitWorktree,
+  buildBuildInfoPayload,
+  getGitShortHash,
+  getGitUpdateNotes,
+  readBuildHistory,
+  writeBuildHistory,
+  writeGeneratedBuildInfo
+} from "./build-info-utils.mjs";
 
 const VERSION_ARG_FLAG = "--version";
 const VERSION_ARG_SHORT = "-v";
@@ -100,24 +108,6 @@ function resolveDisplayVersion(versionArg, previousState) {
   return parseDisplayVersion(autoVersion);
 }
 
-function getGitShortHash(cwd) {
-  let hash = "";
-  try {
-    hash = execSync("git rev-parse --short HEAD", {
-      cwd,
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "pipe"]
-    }).trim();
-  } catch {
-    throw new Error("Git HEAD not found. Please create at least one commit before build.");
-  }
-
-  if (!hash) {
-    throw new Error("Failed to read git short hash.");
-  }
-  return hash;
-}
-
 async function writeBuildConfig(sourceConfigPath, tempConfigPath, semver) {
   const raw = await fs.readFile(sourceConfigPath, "utf8");
   const config = JSON.parse(raw);
@@ -201,11 +191,13 @@ async function renameArtifact(bundleMsiDir, versionInfo, gitHash, productName) {
   }
 }
 
-async function writeVersionState(statePath, versionInfo, gitHash, artifactPath) {
+async function writeVersionState(statePath, versionInfo, gitHash, artifactPath, updateNotes, previousGitHash) {
   const payload = {
     lastDisplayVersion: versionInfo.display,
     lastSemverVersion: versionInfo.semver,
     lastGitHash: gitHash,
+    previousGitHash: previousGitHash ?? null,
+    updateNotes,
     lastArtifactPath: artifactPath,
     updatedAt: new Date().toISOString()
   };
@@ -215,8 +207,10 @@ async function writeVersionState(statePath, versionInfo, gitHash, artifactPath) 
 
 async function main() {
   const root = process.cwd();
+  assertCleanGitWorktree(root);
   const args = parseArgs(process.argv.slice(2));
   const statePath = path.join(root, ".ai-temp", "memory-bank", "build-version-state.json");
+  const historyPath = path.join(root, ".ai-temp", "memory-bank", "build-history.json");
   const sourceConfigPath = path.join(root, "src-tauri", "tauri.conf.json");
   const tempConfigPath = path.join(root, "src-tauri", "tauri.auto-build.conf.json");
   const bundleMsiDir = path.join(root, "src-tauri", "target", "release", "bundle", "msi");
@@ -224,15 +218,54 @@ async function main() {
   const previousState = await readVersionState(statePath);
   const versionInfo = resolveDisplayVersion(args.versionArg, previousState);
   const gitHash = getGitShortHash(root);
+  const previousGitHash = previousState?.lastGitHash ?? null;
+  const updateNotes = getGitUpdateNotes(root, previousGitHash);
+  const updatedAt = new Date().toISOString();
+  const historyEntries = await readBuildHistory(historyPath);
 
   const config = await writeBuildConfig(sourceConfigPath, tempConfigPath, versionInfo.semver);
+  await writeGeneratedBuildInfo(
+    root,
+    buildBuildInfoPayload({
+      versionInfo,
+      gitHash,
+      previousGitHash,
+      updateNotes,
+      artifactPath: previousState?.lastArtifactPath ?? null,
+      updatedAt,
+      historyEntries,
+      historyFilePath: historyPath
+    })
+  );
   console.log(`Build version: ${versionInfo.display} (semver ${versionInfo.semver})`);
   console.log(`Git revision: ${gitHash}`);
 
   await runTauriBuild(tempConfigPath);
 
   const { targetPath } = await renameArtifact(bundleMsiDir, versionInfo, gitHash, config.productName);
-  await writeVersionState(statePath, versionInfo, gitHash, targetPath);
+  const nextHistoryEntries = await writeBuildHistory(historyPath, {
+    displayVersion: versionInfo.display,
+    semverVersion: versionInfo.semver,
+    gitHash,
+    previousGitHash,
+    updateNotes,
+    artifactPath: targetPath,
+    updatedAt
+  });
+  await writeGeneratedBuildInfo(
+    root,
+    buildBuildInfoPayload({
+      versionInfo,
+      gitHash,
+      previousGitHash,
+      updateNotes,
+      artifactPath: targetPath,
+      updatedAt,
+      historyEntries: nextHistoryEntries,
+      historyFilePath: historyPath
+    })
+  );
+  await writeVersionState(statePath, versionInfo, gitHash, targetPath, updateNotes, previousGitHash);
   console.log(`Artifact: ${targetPath}`);
 }
 

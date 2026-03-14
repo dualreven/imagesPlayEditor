@@ -1,6 +1,7 @@
 export type AnnotationKind = "box" | "arrow" | "text";
 export type DrawingTool = AnnotationKind | "select";
 export type TimelineAction = "clear_previous" | "keep_next";
+export type AnnotationCounters = Record<AnnotationKind, number>;
 
 export interface Point {
   x: number;
@@ -37,6 +38,8 @@ export interface TextData {
 interface AnnotationBase {
   id: string;
   kind: AnnotationKind;
+  name: string;
+  sequence: number;
   locked: boolean;
   createdAt: number;
   style: AnnotationStyle;
@@ -91,4 +94,6 @@ export interface EditorImage {
   src: string;
   width: number;
   height: number;
+  fileName: string;
+  sourcePath: string | null;
 }

@@ -5,6 +5,7 @@
 
 ## 代码架构
 - 前端入口: `src/app.ts`（状态管理、事件绑定、渲染调度）。
+- 工程快照运行时: `src/app-project-runtime/index.ts`（工程 JSON 导入导出、图片元数据恢复、状态整体回灌）。
 - 挂载上下文收敛: `src/app-mount-context/index.ts`（状态文案、导出反馈、样式采集、帧描述编辑器状态统一管理）。
 - 入口事件绑定: `src/app-events/index.ts`（集中注册/解绑 UI 事件，`app.ts` 仅提供业务回调）。
 - 导出运行时: `src/app-export-runtime/index.ts`（导出帧计算、聚焦可见集、导出执行流程）。
@@ -15,6 +16,7 @@
 - App 状态变更操作: `src/app-state-ops/index.ts`（清空分隔切换、帧独占切换、动作删除、帧删除）。
 - DOM 查询与页面引用收敛: `src/modules/app-shell/*`（集中必需元素查询与校验）。
 - 页面模板: `src/app-template.ts`。
+- 构建信息生成文件: `src/generated/build-info.ts`（由脚本写入当前版本号、git hash、更新说明，供设置弹窗只读展示）。
 - 样式入口: `src/styles/index.css`（统一分层导入）。
 - 样式分层: `src/styles/{tokens,reset,layout,canvas,toolbar,timeline,dialogs,responsive}.css`（按职责拆分，避免跨层覆盖面条化）。
 - 帧列表高度策略: `src/styles/timeline/panel.css` 使用 `align-content: start` 与 `grid-auto-rows: max-content`，避免帧卡片被容器剩余空间拉伸。
@@ -25,21 +27,29 @@
 - 样式去重约定: 优先使用 `:is(...)` 合并同类按钮状态选择器，减少 hover/active 重复规则，保证视觉语义不变下可维护性更高。
 - 导出入口: toolbar `#open-export-panel-btn`，导出信息面板改为 `#export-dialog` 弹窗（导出动作按钮仍为 `#export-btn`）。
 - 业务模块入口: `src/modules/index.ts`（对外统一导出，模块间应走该入口）。
+- 构建信息模块: `src/modules/build-info/index.ts`（读取生成的版本/更新信息并提供展示文本）。
+- 工程快照模块: `src/modules/project/index.ts`（工程 JSON 序列化、严格校验解析、引用关系 failed-fast 校验）。
 - 时间线与帧视图: `src/modules/timeline/*`, `src/modules/frameview/*`。
 - 时间线新建帧落点: `src/modules/timeline/new-frame-dropzone.ts` + `src/modules/frameview/frame-panel-new-frame-dropzone.ts`（动作拖拽时显示虚线落点，释放后自动新建帧并迁移该动作）。
+- 时间线新建帧插入位: dropzone 现在按“插入索引”分布在任意空白层位，可在中间层直接新建帧而不是仅在末尾追加。
 - 帧视图分层: `src/modules/frameview/{frame-panel-render,export-preview-render,selected-info}.ts`（渲染与状态文案解耦）。
 - 帧面板渲染细分: `src/modules/frameview/{frame-panel-types,frame-panel-card,frame-panel-actions}.ts`（类型、卡片结构、动作列表独立维护）。
 - 帧面板继续细分: `src/modules/frameview/{frame-panel-header,frame-panel-separator}.ts`（头部与分隔条 DOM 组装分离）。
 - 时间线拖拽生命周期: `src/modules/timeline/sortable-system.ts`（根排序实例单次创建，动作列表按 frameId 增量同步）。
 - 时间线拖拽内部细分: `src/modules/timeline/{sortable-types,sortable-order,sortable-factories}.ts`（类型、顺序读取、Sortable工厂分离）。
 - 选中态管理: `src/modules/selection/*`（帧/动作/标注选中与清空的公共逻辑）。
+- 帧过滤器: 旧的“仅显示当前帧”已改为 `focusedFrameId` 驱动的独立过滤器，UI 是与队列并排的垂直 slider，行为不依赖选中帧。
 - 设置弹窗逻辑: `src/modules/settings-dialog/*`（命名预览校验、弹窗打开关闭）。
+- 设置弹窗信息块: 当前除导出设置外，还展示构建版本号与更新信息，数据源来自 `src/generated/build-info.ts`。
+- 设置弹窗结构: 现为 3 个 tab（保存路径 / 命名格式 / 版本信息）；版本信息 tab 内含“版本信息 / 更新信息 / 历史更新信息”三块，历史只展示最近 20 条，并附本地历史文件路径与打开按钮。
 - 画布能力: `src/modules/canvas/*`。
+- 图片元数据: `AppState.image` + `EditorImage.{fileName,sourcePath}` 保存当前图片来源，供工程 JSON 一次性恢复。
 - 画布绘制流程: `src/modules/canvas/drawing-flow.ts`（预览节点创建、拖拽更新、提交标注）。
 - 画布绘制会话: `src/modules/canvas/drawing-session.ts`（绘制起点、预览节点、提交与清理状态集中管理）。
 - 文本标注会话: `src/modules/canvas/text-annotation-session.ts`（文本创建与编辑输入流程从控制器剥离）。
 - 文本输入覆盖层: `src/modules/canvas/text-input-overlay.ts`（文本创建/编辑输入层生命周期）。
 - 标注层渲染: `src/modules/canvas/annotation-layer-render.ts`（标注节点构建、双击文本编辑、编辑控件挂载）。
+- 文本工具透传: 非选择模式下标注节点不再拦截点击，`pointer-events.ts` 允许文字工具在已有框选区域上直接创建文字。
 - 画布指针事件绑定: `src/modules/canvas/pointer-events.ts`（mousedown/mousemove/mouseup/click 事件集中绑定）。
 - 画布视口与缩放: `src/modules/canvas/stage-viewport.ts`（场景指针坐标、自适应缩放、原始比例导出等视口逻辑）。
 - 画布无图态自适应: `stage-viewport.applyViewportStageSize` + `canvas.css` 的 `stage-container` 盒模型修正，确保编辑区随窗口变化且不产生伪滚动条。
@@ -52,9 +62,14 @@
 - Tauri 端: `src-tauri/`。
 - MSI 打包配置: `src-tauri/tauri.conf.json` 中 `bundle.targets` 已固定为 `"msi"`，并显式指定 `bundle.icon = ["icons/icon.ico"]`，避免打包阶段图标缺失错误。
 - MSI 打包命令: `npm run tauri:build`（封装于 `scripts/tauri-build.mjs`）。
+- build 更新信息生成: `scripts/tauri-build.mjs` 会读取 `.ai-temp/memory-bank/build-version-state.json` 的上次 `lastGitHash`，执行 `git log <lastGitHash>..HEAD --format="%h %s"` 生成本次更新信息，并同步写入 `src/generated/build-info.ts` 与版本状态文件。
+- 前端 `npm run build` 也会先执行 `scripts/sync-build-info.mjs`，确保设置弹窗中的版本/更新信息在普通前端 build 时同步刷新。
+- 构建历史持久化: `.ai-temp/memory-bank/build-history.json` 保存过往版本更新信息；build 时会按时间倒序维护，前端只读取最近 20 条。
+- 本地历史文件打开: Tauri 命令 `open_local_file_path` 负责用系统默认方式打开本地更新历史文件；Web 环境按钮禁用并明确提示。
 - 打包版本策略: 支持 `--version YY.MM.NN`；不传参时按当月自动续号（读取 `.ai-temp/memory-bank/build-version-state.json`）。
 - MSI 产物命名: 自动包含业务版本与 git short hash，例如 `imagesPlayEditor_26.03.08_git-a1b2c3d_x64_en-US.msi`。
 - Git 版本要求: 构建时必须存在至少一个 git commit（无 `HEAD` 会 failed-fast 报错）。
+- Build 前置校验: `npm run build` 与 `npm run tauri:build` 现在都会先检查 `git status --porcelain --untracked-files=all`，仓库存在未提交或未跟踪文件时直接报错，要求先提交或暂存改动。
 
 ## 文档位置
 - 使用与目标说明: `README.md`。
@@ -67,4 +82,7 @@
 - 禁止模块间直引内部实现，优先从 `@modules` 或模块 `index.ts` 导入。
 - 采用 failed-fast：出现异常要明确报错，不做静默兜底。
 - 临时尝试文件统一放 `.ai-temp/attempts/`，工作日志放 `.ai-temp/working-log/`。
+- 工程 JSON 为严格格式：缺字段、坏引用、无效帧/动作/标注关系时直接报错，不做静默补救。
+- 标注已具备稳定 `name + sequence` 元数据，动作面板与选中信息优先显示 `annotation.name`。
+- 版本/更新信息属于构建产物元数据，不应手工在业务代码里重复维护；应通过 build 脚本统一生成。
 - 当前重构策略：`app.ts` 保持编排层，事件/状态变更/UI 控制/画布细节拆入独立模块，优先降低耦合与回归面。

@@ -8,6 +8,7 @@ interface RenderFramePanelRefreshOptions {
   container: HTMLDivElement;
   setStatus: (message: string) => void;
   openFrameDescEditor: (frame: Frame) => void;
+  duplicateFrameById: (frameId: string) => string | null;
   deleteFrameById: (frameId: string) => boolean;
   toggleFrameExclusive: (frameId: string) => boolean;
   toggleClearBeforeFrame: (frameId: string) => boolean | null;
@@ -21,6 +22,7 @@ export function renderFramePanelRefresh(options: RenderFramePanelRefreshOptions)
     container,
     setStatus,
     openFrameDescEditor,
+    duplicateFrameById,
     deleteFrameById,
     toggleFrameExclusive,
     toggleClearBeforeFrame,
@@ -31,10 +33,11 @@ export function renderFramePanelRefresh(options: RenderFramePanelRefreshOptions)
   const framePanelHandlers = createFramePanelHandlers({
     state,
     refresh,
-    setStatus,
-    openFrameDescEditor,
-    deleteFrameById,
-    toggleFrameExclusive,
+      setStatus,
+      openFrameDescEditor,
+      duplicateFrameById,
+      deleteFrameById,
+      toggleFrameExclusive,
     toggleClearBeforeFrame,
     syncStyleInputsFromSelected
   });

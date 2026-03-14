@@ -1,5 +1,6 @@
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::process::Command;
 
 use base64::engine::general_purpose::STANDARD;
 use base64::Engine;
@@ -36,4 +37,44 @@ pub fn save_export_zip_base64(
     fs::write(&output_path, bytes).map_err(|error| format!("write file failed: {error}"))?;
 
     Ok(output_path.to_string_lossy().to_string())
+}
+
+#[tauri::command]
+pub fn open_local_file_path(path: String) -> Result<(), String> {
+    let target = path.trim();
+    if target.is_empty() {
+        return Err("path is empty".to_string());
+    }
+
+    let target_path = PathBuf::from(target);
+    if !target_path.exists() {
+        return Err(format!("path does not exist: {target}"));
+    }
+
+    #[cfg(target_os = "windows")]
+    {
+        Command::new("cmd")
+            .args(["/C", "start", "", target])
+            .spawn()
+            .map_err(|error| format!("failed to open path: {error}"))?;
+        Ok(())
+    }
+
+    #[cfg(target_os = "macos")]
+    {
+        Command::new("open")
+            .arg(target)
+            .spawn()
+            .map_err(|error| format!("failed to open path: {error}"))?;
+        Ok(())
+    }
+
+    #[cfg(all(not(target_os = "windows"), not(target_os = "macos")))]
+    {
+        Command::new("xdg-open")
+            .arg(target)
+            .spawn()
+            .map_err(|error| format!("failed to open path: {error}"))?;
+        Ok(())
+    }
 }

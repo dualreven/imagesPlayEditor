@@ -15,7 +15,6 @@ export function createToolAndStyleHandlers(options: CreateAppEventHandlersOption
       if (tool === "box" || tool === "arrow" || tool === "text") {
         state.selectedFrameId = null;
         clearActionSelection(state);
-        state.showCurrentFrameOnly = false;
       }
       refresh();
       setStatus(`当前工具: ${getToolLabel(tool)}`);
@@ -36,10 +35,11 @@ export function createToolAndStyleHandlers(options: CreateAppEventHandlersOption
       refresh();
       setStatus("已应用样式到选中标注");
     },
-    onImageInputChange: async (file) => {
+    onImageInputChange: async (file, sourcePath) => {
       if (!file) return;
       try {
-        const image = await loadImage(file);
+        const image = await loadImage(file, sourcePath);
+        state.image = image;
         refresh();
         setStatus(`图片已加载: ${image.width}x${image.height}`);
       } catch (error) {

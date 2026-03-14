@@ -3,7 +3,12 @@ import type { AppState } from "../app-state";
 import type { ExportRuntime } from "../app-export-runtime";
 import { refreshCanvasAndExport } from "./canvas-export-refresh";
 import { renderFramePanelRefresh } from "./panel-refresh";
-import { syncStyleInputsFromAnnotation, type ActionControls, type StyleControls } from "../app-ui-controls";
+import {
+  syncStyleInputsFromAnnotation,
+  type ActionControls,
+  type FrameFilterControls,
+  type StyleControls
+} from "../app-ui-controls";
 import { refreshUiState } from "./ui-state-refresh";
 
 interface CreateAppRefreshRuntimeOptions {
@@ -15,8 +20,10 @@ interface CreateAppRefreshRuntimeOptions {
   toolButtons: HTMLButtonElement[];
   styleControls: StyleControls;
   actionControls: ActionControls;
+  frameFilterControls: FrameFilterControls;
   setStatus: (message: string) => void;
   openFrameDescEditor: (frame: Frame) => void;
+  duplicateFrameById: (frameId: string) => string | null;
   deleteFrameById: (frameId: string) => boolean;
   toggleFrameExclusive: (frameId: string) => boolean;
   toggleClearBeforeFrame: (frameId: string) => boolean | null;
@@ -40,8 +47,10 @@ export function createAppRefreshRuntime(options: CreateAppRefreshRuntimeOptions)
     toolButtons,
     styleControls,
     actionControls,
+    frameFilterControls,
     setStatus,
     openFrameDescEditor,
+    duplicateFrameById,
     deleteFrameById,
     toggleFrameExclusive,
     toggleClearBeforeFrame,
@@ -62,6 +71,7 @@ export function createAppRefreshRuntime(options: CreateAppRefreshRuntimeOptions)
       toolButtons,
       styleControls,
       actionControls,
+      frameFilterControls,
       selectedAnnotation: getSelectedAnnotation()
     });
 
@@ -70,6 +80,7 @@ export function createAppRefreshRuntime(options: CreateAppRefreshRuntimeOptions)
       container: frameListPanel,
       setStatus,
       openFrameDescEditor,
+      duplicateFrameById,
       deleteFrameById,
       toggleFrameExclusive,
       toggleClearBeforeFrame,

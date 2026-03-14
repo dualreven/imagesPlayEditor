@@ -19,7 +19,7 @@ export function buildSelectedInfoText(
   }
   if (action.type === "annotation") {
     const annotation = annotations.get(action.annotationId);
-    return `选中: ${frameLabel} / 标注:${annotation?.kind ?? "unknown"} (${annotation?.locked ? "已锁定" : "未锁定"})`;
+    return `选中: ${frameLabel} / 标注:${annotation?.name ?? annotation?.kind ?? "unknown"} (${annotation?.locked ? "已锁定" : "未锁定"})`;
   }
   return `选中: ${frameLabel} / 动作:${getActionLabel(action.action)}`;
 }

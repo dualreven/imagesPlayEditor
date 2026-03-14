@@ -13,7 +13,7 @@ type TimelineCallbacks = Pick<
   | "onAddEmptyFrame"
   | "onAddClearBefore"
   | "onTimelineBackgroundClick"
-  | "onToggleFrameFocus"
+  | "onFrameVisibilityChange"
   | "onToggleStepLock"
   | "onDeleteAction"
 >;
@@ -54,18 +54,30 @@ export function createTimelineHandlers(options: CreateAppEventHandlersOptions): 
     onTimelineBackgroundClick: (target) => {
       if (!target || target.closest(timelineIgnoreSelector)) return;
       if (!hasSelection(state)) return;
-      clearSelection(state, { resetFocusedView: true });
+      clearSelection(state);
       refresh();
       setStatus("已取消选中");
     },
-    onToggleFrameFocus: () => {
-      if (!state.showCurrentFrameOnly && !state.selectedFrameId) {
-        setStatus("请先选中一个帧");
+    onFrameVisibilityChange: (sliderValue) => {
+      const nextValue = Number(sliderValue);
+      if (!Number.isInteger(nextValue) || nextValue < 0) {
+        setStatus("帧过滤值无效");
         return;
       }
-      state.showCurrentFrameOnly = !state.showCurrentFrameOnly;
+      if (nextValue === 0) {
+        state.focusedFrameId = null;
+        refresh();
+        setStatus("已显示全部帧内容");
+        return;
+      }
+      const frame = state.frames[nextValue - 1];
+      if (!frame) {
+        setStatus("目标帧不存在");
+        return;
+      }
+      state.focusedFrameId = frame.id;
       refresh();
-      setStatus(state.showCurrentFrameOnly ? "已开启仅显示当前帧" : "已关闭仅显示当前帧");
+      setStatus(`已切换为仅显示帧${nextValue}内容`);
     },
     onToggleStepLock: () => {
       if (!state.selectedActionId) {

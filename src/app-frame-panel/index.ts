@@ -8,6 +8,7 @@ interface CreateFramePanelHandlersOptions {
   refresh: () => void;
   setStatus: (message: string) => void;
   openFrameDescEditor: (frame: Frame) => void;
+  duplicateFrameById: (frameId: string) => string | null;
   deleteFrameById: (frameId: string) => boolean;
   toggleFrameExclusive: (frameId: string) => boolean;
   toggleClearBeforeFrame: (frameId: string) => boolean | null;
@@ -20,6 +21,7 @@ export function createFramePanelHandlers(options: CreateFramePanelHandlersOption
     refresh,
     setStatus,
     openFrameDescEditor,
+    duplicateFrameById,
     deleteFrameById,
     toggleFrameExclusive,
     toggleClearBeforeFrame,
@@ -37,6 +39,13 @@ export function createFramePanelHandlers(options: CreateFramePanelHandlersOption
       selectFrameOnly(state, frameId);
       openFrameDescEditor(frame);
       refresh();
+    },
+    onDuplicateFrame: (frameId: string) => {
+      const duplicatedFrameId = duplicateFrameById(frameId);
+      if (!duplicatedFrameId) return;
+      selectFrameOnly(state, duplicatedFrameId);
+      refresh();
+      setStatus("已在下一帧创建副本");
     },
     onDeleteFrame: (frameId: string) => {
       if (!deleteFrameById(frameId)) return;

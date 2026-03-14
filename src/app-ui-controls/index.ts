@@ -12,14 +12,21 @@ export interface ActionControls {
   toggleStepLockBtn: HTMLButtonElement;
   deleteActionBtn: HTMLButtonElement;
   addClearBtn: HTMLButtonElement;
-  toggleFrameFocusBtn: HTMLButtonElement;
+}
+
+export interface FrameFilterControls {
+  frameVisibilitySlider: HTMLInputElement;
+  frameVisibilityValue: HTMLElement;
 }
 
 interface ActionControlState {
   selectedAction: TimelineStep | null;
   selectedFrameIndex: number;
-  selectedFrameId: string | null;
-  showCurrentFrameOnly: boolean;
+}
+
+interface FrameFilterState {
+  frameIds: string[];
+  focusedFrameId: string | null;
 }
 
 export function renderToolState(toolButtons: HTMLButtonElement[], tool: DrawingTool) {
@@ -42,14 +49,26 @@ export function updateStyleControlAvailability(annotation: Annotation | null, co
   controls.styleStroke.disabled = !flags.stroke;
   controls.styleArrow.disabled = !flags.arrow;
   controls.styleFont.disabled = !flags.font;
-  controls.applyStyleBtn.textContent = annotation ? "应用到选中标注" : "更新默认绘制样式";
-  controls.applyStyleBtn.title = annotation ? `当前标注类型: ${annotation.kind}` : "未选中标注，可设置默认样式";
+  const tooltip = annotation ? `应用到 ${annotation.name}` : "更新默认绘制样式";
+  controls.applyStyleBtn.title = tooltip;
+  controls.applyStyleBtn.setAttribute("aria-label", tooltip);
+  controls.applyStyleBtn.dataset.tooltip = tooltip;
 }
 
 export function updateActionFrameControlAvailability(state: ActionControlState, controls: ActionControls) {
   controls.toggleStepLockBtn.disabled = !state.selectedAction || state.selectedAction.type !== "annotation";
   controls.deleteActionBtn.disabled = !state.selectedAction;
   controls.addClearBtn.disabled = state.selectedFrameIndex <= 0;
-  controls.toggleFrameFocusBtn.disabled = !state.selectedFrameId && !state.showCurrentFrameOnly;
-  controls.toggleFrameFocusBtn.textContent = state.showCurrentFrameOnly ? "取消仅显示当前帧" : "仅显示当前帧";
+}
+
+export function syncFrameFilterControls(state: FrameFilterState, controls: FrameFilterControls) {
+  const frameCount = state.frameIds.length;
+  controls.frameVisibilitySlider.min = "0";
+  controls.frameVisibilitySlider.max = String(frameCount);
+  controls.frameVisibilitySlider.step = "1";
+  controls.frameVisibilitySlider.disabled = frameCount === 0;
+  const focusedIndex = state.focusedFrameId ? state.frameIds.indexOf(state.focusedFrameId) : -1;
+  const nextValue = focusedIndex >= 0 ? focusedIndex + 1 : 0;
+  controls.frameVisibilitySlider.value = String(nextValue);
+  controls.frameVisibilityValue.textContent = nextValue === 0 ? "全部" : `帧${nextValue}`;
 }

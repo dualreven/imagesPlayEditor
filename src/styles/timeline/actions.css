@@ -30,33 +30,27 @@
 
 .frame-new-dropzone {
   display: none;
-  border: 2px dashed #2e95ff;
-  border-radius: 12px;
-  background: rgba(46, 149, 255, 0.06);
-  padding: 8px;
-}
-
-.frame-new-dropzone-title {
-  margin: 0 0 6px 0;
-  color: #075985;
-  font-size: 12px;
-  font-weight: 600;
+  padding: 0;
 }
 
 .frame-new-dropzone-action-list {
+  min-height: 30px;
+  padding: 0;
+  border-radius: 10px;
   border: 1px dashed #8bbff8;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(46, 149, 255, 0.06);
 }
 
 .frame-new-dropzone-hint {
   list-style: none;
   margin: 0;
   border-radius: 8px;
-  border: 1px dashed #94a3b8;
-  color: #64748b;
-  background: #f8fafc;
-  padding: 8px;
+  border: 1px dashed transparent;
+  color: #0f5f99;
+  background: transparent;
+  padding: 6px 8px;
+  text-align: center;
+  font-size: 11px;
   user-select: none;
   -webkit-user-select: none;
 }

@@ -6,11 +6,15 @@ import type { RenderFramePanelOptions } from "./frame-panel-types";
 export function renderFramePanel(options: RenderFramePanelOptions) {
   const { container, frames, clearBeforeFrameIds, onToggleClearBefore } = options;
   container.innerHTML = "";
+  container.append(createNewFrameDropzoneCard(0));
   frames.forEach((frame, index) => {
+    if (index > 0) {
+      container.append(createNewFrameDropzoneCard(index));
+    }
     if (index > 0 && clearBeforeFrameIds.has(frame.id)) {
       container.append(createClearSeparator(frame.id, onToggleClearBefore));
     }
     container.append(createFrameCard(frame, index, options));
   });
-  container.append(createNewFrameDropzoneCard());
+  container.append(createNewFrameDropzoneCard(frames.length));
 }

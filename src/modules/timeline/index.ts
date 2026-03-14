@@ -51,11 +51,17 @@ export function moveActionToFrame(frames: Frame[], actionId: string, targetFrame
   return nextFrames;
 }
 
-export function moveActionToNewFrame(frames: Frame[], actionId: string): { frames: Frame[]; newFrameId: string } {
+export function moveActionToNewFrame(
+  frames: Frame[],
+  actionId: string,
+  insertIndex = frames.length
+): { frames: Frame[]; newFrameId: string } {
   const nextFrames = removeActionFromFrames(frames, actionId);
   const newFrame = createFrame([actionId]);
+  const safeIndex = clampIndex(insertIndex, nextFrames.length);
+  nextFrames.splice(safeIndex, 0, newFrame);
   return {
-    frames: [...nextFrames, newFrame],
+    frames: nextFrames,
     newFrameId: newFrame.id
   };
 }

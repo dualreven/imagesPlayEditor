@@ -70,11 +70,11 @@ export function bindCanvasPointerEvents(options: BindCanvasPointerEventsOptions)
   stage.on("click", (event) => {
     const target = event.target;
     const backgroundImageNode = getBackgroundImageNode();
-    if (target && target !== stage && target !== backgroundImageNode) {
+    const tool = getTool();
+    if (tool !== "text" && target && target !== stage && target !== backgroundImageNode) {
       return;
     }
 
-    const tool = getTool();
     if (tool === "select") {
       onSelectNone();
       return;

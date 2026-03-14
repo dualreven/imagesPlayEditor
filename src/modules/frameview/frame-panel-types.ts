@@ -10,6 +10,7 @@ export interface RenderFramePanelOptions {
   selectedActionId: string | null;
   onSelectFrame: (frameId: string) => void;
   onEditFrame: (frameId: string) => void;
+  onDuplicateFrame: (frameId: string) => void;
   onDeleteFrame: (frameId: string) => void;
   onToggleFrameExclusive: (frameId: string) => void;
   onToggleClearBefore: (frameId: string) => void;

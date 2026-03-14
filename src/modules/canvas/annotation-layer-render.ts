@@ -83,26 +83,24 @@ export function renderAnnotationLayer(options: RenderAnnotationLayerOptions) {
     if (visibleAnnotationIds && !visibleAnnotationIds.has(annotation.id)) {
       node.visible(false);
     }
-    node.on("click tap", (event) => {
-      event.cancelBubble = true;
-      if (!selectable) {
-        setLastTextClick(null);
-        return;
-      }
-      onAnnotationSelected(annotation.id);
-      if (annotation.kind !== "text" || !editable) {
-        setLastTextClick(null);
-        return;
-      }
-      const now = Date.now();
-      const lastTextClick = getLastTextClick();
-      const isDoubleClick =
-        lastTextClick?.annotationId === annotation.id && now - lastTextClick.timestamp <= 350;
-      setLastTextClick({ annotationId: annotation.id, timestamp: now });
-      if (isDoubleClick) {
-        onStartEditTextInput(annotation.id);
-      }
-    });
+    if (selectable) {
+      node.on("click tap", (event) => {
+        event.cancelBubble = true;
+        onAnnotationSelected(annotation.id);
+        if (annotation.kind !== "text" || !editable) {
+          setLastTextClick(null);
+          return;
+        }
+        const now = Date.now();
+        const lastTextClick = getLastTextClick();
+        const isDoubleClick =
+          lastTextClick?.annotationId === annotation.id && now - lastTextClick.timestamp <= 350;
+        setLastTextClick({ annotationId: annotation.id, timestamp: now });
+        if (isDoubleClick) {
+          onStartEditTextInput(annotation.id);
+        }
+      });
+    }
     annotationLayer.add(node);
     if (editable && annotation.id === selectedAnnotationId) {
       enableEditingControls({

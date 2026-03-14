@@ -17,11 +17,6 @@
   background: #f2f8ff;
 }
 
-.file-label-text {
-  font-weight: 600;
-  color: #1e3a5f;
-}
-
 .file-label input[type="file"] {
   width: 150px;
   max-width: 150px;
@@ -32,4 +27,16 @@
 .toolbar-file-label input[type="file"] {
   width: 180px;
   max-width: 180px;
+}
+
+.toolbar-icon-button.file-label {
+  padding: 0;
+  width: 38px;
+  height: 38px;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.toolbar-icon-button input[type="file"] {
+  display: none;
 }

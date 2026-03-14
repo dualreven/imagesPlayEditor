@@ -11,6 +11,7 @@ export function createFrameCard(
     | "selectedFrameId"
     | "onSelectFrame"
     | "onEditFrame"
+    | "onDuplicateFrame"
     | "onDeleteFrame"
     | "onToggleFrameExclusive"
     | "actions"
@@ -30,6 +31,7 @@ export function createFrameCard(
   const header = createFrameHeader(frame, frameIndex, {
     onSelectFrame: options.onSelectFrame,
     onEditFrame: options.onEditFrame,
+    onDuplicateFrame: options.onDuplicateFrame,
     onDeleteFrame: options.onDeleteFrame,
     onToggleFrameExclusive: options.onToggleFrameExclusive
   });

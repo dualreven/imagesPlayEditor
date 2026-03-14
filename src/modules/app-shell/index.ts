@@ -14,16 +14,25 @@ export interface AppDomRefs {
   exportCloseBtn: HTMLButtonElement;
   settingsBtn: HTMLButtonElement;
   settingsDialog: HTMLDialogElement;
+  settingTabButtons: HTMLButtonElement[];
   frameDescInput: HTMLTextAreaElement;
   settingSavePath: HTMLInputElement;
   settingNamePattern: HTMLInputElement;
   settingPatternTip: HTMLParagraphElement;
   settingPreview: HTMLParagraphElement;
+  settingVersionLineMain: HTMLParagraphElement;
+  settingVersionLineDetail: HTMLParagraphElement;
+  settingVersionLineTime: HTMLParagraphElement;
+  settingUpdateList: HTMLOListElement;
+  settingHistoryList: HTMLOListElement;
+  settingHistoryFilePath: HTMLParagraphElement;
+  settingOpenHistoryBtn: HTMLButtonElement;
   settingCancelBtn: HTMLButtonElement;
   settingSaveBtn: HTMLButtonElement;
   frameDescCancelBtn: HTMLButtonElement;
   frameDescSaveBtn: HTMLButtonElement;
   imageInput: HTMLInputElement;
+  projectInput: HTMLInputElement;
   exportFrameList: HTMLOListElement;
   exportFeedback: HTMLParagraphElement;
   selectedInfo: HTMLParagraphElement;
@@ -32,11 +41,13 @@ export interface AppDomRefs {
   styleArrow: HTMLInputElement;
   styleFont: HTMLInputElement;
   applyStyleBtn: HTMLButtonElement;
+  frameVisibilitySlider: HTMLInputElement;
+  frameVisibilityValue: HTMLSpanElement;
   addEmptyFrameBtn: HTMLButtonElement;
   addClearBtn: HTMLButtonElement;
-  toggleFrameFocusBtn: HTMLButtonElement;
   toggleStepLockBtn: HTMLButtonElement;
   deleteActionBtn: HTMLButtonElement;
+  exportProjectBtn: HTMLButtonElement;
   exportBtn: HTMLButtonElement;
   toolButtons: HTMLButtonElement[];
 }
@@ -54,16 +65,25 @@ export function queryAppDom(root: HTMLDivElement): AppDomRefs {
     exportCloseBtn: requiredElement(root.querySelector<HTMLButtonElement>("#export-close-btn"), "#export-close-btn"),
     settingsBtn: requiredElement(root.querySelector<HTMLButtonElement>("#settings-btn"), "#settings-btn"),
     settingsDialog: requiredElement(root.querySelector<HTMLDialogElement>("#settings-dialog"), "#settings-dialog"),
+    settingTabButtons: [...root.querySelectorAll<HTMLButtonElement>("[data-settings-tab]")],
     frameDescInput: requiredElement(root.querySelector<HTMLTextAreaElement>("#frame-desc-input"), "#frame-desc-input"),
     settingSavePath: requiredElement(root.querySelector<HTMLInputElement>("#setting-save-path"), "#setting-save-path"),
     settingNamePattern: requiredElement(root.querySelector<HTMLInputElement>("#setting-name-pattern"), "#setting-name-pattern"),
     settingPatternTip: requiredElement(root.querySelector<HTMLParagraphElement>("#setting-pattern-tip"), "#setting-pattern-tip"),
     settingPreview: requiredElement(root.querySelector<HTMLParagraphElement>("#setting-preview"), "#setting-preview"),
+    settingVersionLineMain: requiredElement(root.querySelector<HTMLParagraphElement>("#setting-version-line-main"), "#setting-version-line-main"),
+    settingVersionLineDetail: requiredElement(root.querySelector<HTMLParagraphElement>("#setting-version-line-detail"), "#setting-version-line-detail"),
+    settingVersionLineTime: requiredElement(root.querySelector<HTMLParagraphElement>("#setting-version-line-time"), "#setting-version-line-time"),
+    settingUpdateList: requiredElement(root.querySelector<HTMLOListElement>("#setting-update-list"), "#setting-update-list"),
+    settingHistoryList: requiredElement(root.querySelector<HTMLOListElement>("#setting-history-list"), "#setting-history-list"),
+    settingHistoryFilePath: requiredElement(root.querySelector<HTMLParagraphElement>("#setting-history-file-path"), "#setting-history-file-path"),
+    settingOpenHistoryBtn: requiredElement(root.querySelector<HTMLButtonElement>("#setting-open-history-btn"), "#setting-open-history-btn"),
     settingCancelBtn: requiredElement(root.querySelector<HTMLButtonElement>("#setting-cancel-btn"), "#setting-cancel-btn"),
     settingSaveBtn: requiredElement(root.querySelector<HTMLButtonElement>("#setting-save-btn"), "#setting-save-btn"),
     frameDescCancelBtn: requiredElement(root.querySelector<HTMLButtonElement>("#frame-desc-cancel-btn"), "#frame-desc-cancel-btn"),
     frameDescSaveBtn: requiredElement(root.querySelector<HTMLButtonElement>("#frame-desc-save-btn"), "#frame-desc-save-btn"),
     imageInput: requiredElement(root.querySelector<HTMLInputElement>("#image-input"), "#image-input"),
+    projectInput: requiredElement(root.querySelector<HTMLInputElement>("#project-input"), "#project-input"),
     exportFrameList: requiredElement(root.querySelector<HTMLOListElement>("#export-frame-list"), "#export-frame-list"),
     exportFeedback: requiredElement(root.querySelector<HTMLParagraphElement>("#export-feedback"), "#export-feedback"),
     selectedInfo: requiredElement(root.querySelector<HTMLParagraphElement>("#selected-info"), "#selected-info"),
@@ -72,11 +92,13 @@ export function queryAppDom(root: HTMLDivElement): AppDomRefs {
     styleArrow: requiredElement(root.querySelector<HTMLInputElement>("#style-arrow"), "#style-arrow"),
     styleFont: requiredElement(root.querySelector<HTMLInputElement>("#style-font"), "#style-font"),
     applyStyleBtn: requiredElement(root.querySelector<HTMLButtonElement>("#apply-style-btn"), "#apply-style-btn"),
+    frameVisibilitySlider: requiredElement(root.querySelector<HTMLInputElement>("#frame-visibility-slider"), "#frame-visibility-slider"),
+    frameVisibilityValue: requiredElement(root.querySelector<HTMLSpanElement>("#frame-visibility-value"), "#frame-visibility-value"),
     addEmptyFrameBtn: requiredElement(root.querySelector<HTMLButtonElement>("#add-empty-frame-btn"), "#add-empty-frame-btn"),
     addClearBtn: requiredElement(root.querySelector<HTMLButtonElement>("#add-clear-btn"), "#add-clear-btn"),
-    toggleFrameFocusBtn: requiredElement(root.querySelector<HTMLButtonElement>("#toggle-frame-focus-btn"), "#toggle-frame-focus-btn"),
     toggleStepLockBtn: requiredElement(root.querySelector<HTMLButtonElement>("#toggle-step-lock-btn"), "#toggle-step-lock-btn"),
     deleteActionBtn: requiredElement(root.querySelector<HTMLButtonElement>("#delete-action-btn"), "#delete-action-btn"),
+    exportProjectBtn: requiredElement(root.querySelector<HTMLButtonElement>("#export-project-btn"), "#export-project-btn"),
     exportBtn: requiredElement(root.querySelector<HTMLButtonElement>("#export-btn"), "#export-btn"),
     toolButtons: [...root.querySelectorAll<HTMLButtonElement>("[data-tool]")]
   };

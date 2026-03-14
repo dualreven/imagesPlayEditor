@@ -1,6 +1,7 @@
 import {
   createTimelineSortableSystem,
   isNewFrameDropzoneId,
+  readNewFrameDropzoneInsertIndex,
   moveActionToNewFrame,
   moveActionToFrame,
   selectActionInFrame,
@@ -22,7 +23,7 @@ export function createTimelineRuntime(options: CreateTimelineRuntimeOptions) {
     root,
     onMoveAction: (actionId, targetFrameId, insertIndex) => {
       if (isNewFrameDropzoneId(targetFrameId)) {
-        const next = moveActionToNewFrame(state.frames, actionId);
+        const next = moveActionToNewFrame(state.frames, actionId, readNewFrameDropzoneInsertIndex(targetFrameId) ?? insertIndex);
         state.frames = next.frames;
         const action = state.actions.get(actionId);
         selectActionInFrame(state, actionId, next.newFrameId, action?.type === "annotation" ? action.annotationId : null);

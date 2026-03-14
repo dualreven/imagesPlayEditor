@@ -1,6 +1,6 @@
 import type { AnnotationStyle, CanvasController, Frame } from "@modules";
 import type { AppState } from "../app-state";
-import type { ActionControls, StyleControls } from "../app-ui-controls";
+import type { ActionControls, FrameFilterControls, StyleControls } from "../app-ui-controls";
 
 interface CreateAppMountContextOptions {
   state: AppState;
@@ -14,15 +14,17 @@ interface CreateAppMountContextOptions {
   styleArrow: HTMLInputElement;
   styleFont: HTMLInputElement;
   applyStyleBtn: HTMLButtonElement;
+  frameVisibilitySlider: HTMLInputElement;
+  frameVisibilityValue: HTMLElement;
   toggleStepLockBtn: HTMLButtonElement;
   deleteActionBtn: HTMLButtonElement;
   addClearBtn: HTMLButtonElement;
-  toggleFrameFocusBtn: HTMLButtonElement;
 }
 
 export interface AppMountContext {
   styleControls: StyleControls;
   actionControls: ActionControls;
+  frameFilterControls: FrameFilterControls;
   setStatus: (message: string) => void;
   setExportFeedback: (message: string, kind?: "info" | "success" | "error") => void;
   collectStyleFromInputs: () => void;
@@ -44,15 +46,17 @@ export function createAppMountContext(options: CreateAppMountContextOptions): Ap
     styleArrow,
     styleFont,
     applyStyleBtn,
+    frameVisibilitySlider,
+    frameVisibilityValue,
     toggleStepLockBtn,
     deleteActionBtn,
-    addClearBtn,
-    toggleFrameFocusBtn
+    addClearBtn
   } = options;
 
   let editingFrameDescId: string | null = null;
   const styleControls = { styleColor, styleStroke, styleArrow, styleFont, applyStyleBtn };
-  const actionControls = { toggleStepLockBtn, deleteActionBtn, addClearBtn, toggleFrameFocusBtn };
+  const actionControls = { toggleStepLockBtn, deleteActionBtn, addClearBtn };
+  const frameFilterControls = { frameVisibilitySlider, frameVisibilityValue };
 
   const setStatus = (message: string) => {
     statusText.textContent = message;
@@ -88,6 +92,7 @@ export function createAppMountContext(options: CreateAppMountContextOptions): Ap
   return {
     styleControls,
     actionControls,
+    frameFilterControls,
     setStatus,
     setExportFeedback,
     collectStyleFromInputs,

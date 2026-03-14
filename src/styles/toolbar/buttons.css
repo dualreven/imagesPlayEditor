@@ -1,13 +1,14 @@
 .btn-icon {
   display: inline-grid;
   place-items: center;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   font-size: 12px;
   line-height: 1;
 }
 
-button .btn-icon {
+button .btn-icon,
+.toolbar-icon-button .btn-icon {
   width: 18px;
   height: 18px;
   border-radius: 5px;
@@ -15,7 +16,14 @@ button .btn-icon {
   font-size: 11px;
 }
 
+.btn-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+
 :is(
+  .toolbar-icon-button.file-label,
   .toolbar-tool-group button,
   .toolbar-export-btn,
   .toolbar-settings-btn,
@@ -34,6 +42,13 @@ button .btn-icon {
   border-radius: 9px;
   box-shadow: 0 2px 8px rgba(14, 116, 144, 0.25);
   transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+}
+
+.toolbar-icon-button {
+  width: 38px;
+  min-width: 38px;
+  height: 38px;
+  padding: 0;
 }
 
 .toolbar-tool-group button {
@@ -64,6 +79,7 @@ button .btn-icon {
 }
 
 :is(
+  .toolbar-icon-button.file-label,
   .toolbar-tool-group button,
   .toolbar-export-btn,
   .toolbar-settings-btn,
@@ -77,6 +93,7 @@ button .btn-icon {
 }
 
 :is(
+  .toolbar-icon-button.file-label,
   .toolbar-tool-group button,
   .toolbar-export-btn,
   .toolbar-settings-btn,
@@ -104,4 +121,36 @@ button .btn-icon {
 
 .toolbar-settings-btn:hover {
   box-shadow: 0 4px 12px rgba(55, 65, 81, 0.36);
+}
+
+.export-btn {
+  gap: 10px;
+  padding: 8px 12px;
+}
+
+.export-btn-text {
+  font-weight: 600;
+}
+
+:is(button, label).toolbar-icon-button {
+  position: relative;
+}
+
+:is(button, label).toolbar-icon-button[data-tooltip]:hover::before,
+:is(button, label).toolbar-icon-button[data-tooltip]:focus-visible::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.92);
+  color: #fff;
+  font-size: 11px;
+  line-height: 1.2;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.22);
+  z-index: 20;
 }

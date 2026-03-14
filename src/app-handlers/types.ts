@@ -6,10 +6,19 @@ export interface CreateAppEventHandlersOptions {
   state: AppState;
   exportDialog: HTMLDialogElement;
   settingsDialog: HTMLDialogElement;
+  settingTabButtons: HTMLButtonElement[];
   settingSavePath: HTMLInputElement;
   settingNamePattern: HTMLInputElement;
   settingPatternTip: HTMLParagraphElement;
   settingPreview: HTMLParagraphElement;
+  settingVersionLineMain: HTMLParagraphElement;
+  settingVersionLineDetail: HTMLParagraphElement;
+  settingVersionLineTime: HTMLParagraphElement;
+  settingUpdateList: HTMLOListElement;
+  settingHistoryList: HTMLOListElement;
+  settingHistoryFilePath: HTMLParagraphElement;
+  settingOpenHistoryBtn: HTMLButtonElement;
+  settingSaveBtn: HTMLButtonElement;
   frameDescInput: HTMLTextAreaElement;
   getEditingFrameDescId: () => string | null;
   refresh: () => void;
@@ -20,8 +29,16 @@ export interface CreateAppEventHandlersOptions {
   getSelectedAnnotation: () => Annotation | null;
   toggleClearBeforeFrame: (frameId: string) => boolean | null;
   removeActions: (actionIds: string[]) => void;
-  loadImage: (file: File) => Promise<{ width: number; height: number }>;
+  loadImage: (file: File, sourcePath: string | null) => Promise<{
+    src: string;
+    width: number;
+    height: number;
+    fileName: string;
+    sourcePath: string | null;
+  }>;
   runExport: () => Promise<void>;
+  exportProject: () => Promise<void>;
+  importProject: (file: File) => Promise<void>;
   timelineIgnoreSelector?: string;
 }
 
@@ -32,8 +49,10 @@ export type EventCallbacks = Pick<
   | "onCloseExportDialog"
   | "onOpenSettings"
   | "onCloseSettings"
+  | "onSettingTabSelect"
   | "onSettingPatternInput"
   | "onSettingSave"
+  | "onOpenUpdateHistoryFile"
   | "onFrameDescCancel"
   | "onFrameDescSave"
   | "onStyleInputChange"
@@ -42,8 +61,10 @@ export type EventCallbacks = Pick<
   | "onAddEmptyFrame"
   | "onAddClearBefore"
   | "onTimelineBackgroundClick"
-  | "onToggleFrameFocus"
+  | "onFrameVisibilityChange"
   | "onToggleStepLock"
   | "onDeleteAction"
+  | "onProjectImport"
+  | "onProjectExport"
   | "onExport"
 >;

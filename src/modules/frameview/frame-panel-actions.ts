@@ -16,7 +16,7 @@ function createActionItem(
   if (action.type === "annotation") {
     const annotation = annotations.get(action.annotationId);
     const lockMark = annotation?.locked ? " [锁]" : "";
-    li.textContent = `标注:${annotation?.kind ?? "unknown"}${lockMark}`;
+    li.textContent = `标注:${annotation?.name ?? annotation?.kind ?? "unknown"}${lockMark}`;
   } else {
     li.textContent = `动作:${getActionLabel(action.action)}`;
   }

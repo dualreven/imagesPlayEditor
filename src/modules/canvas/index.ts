@@ -68,7 +68,8 @@ export class CanvasController {
       container: this.container,
       getStageRect: () => this.stage.content.getBoundingClientRect(),
       getDisplayScale: () => this.displayScale,
-      getStyleReferenceSize: () => this.getStyleReferenceSize()
+      getStyleReferenceSize: () => this.getStyleReferenceSize(),
+      getHostRect: () => this.container.getBoundingClientRect()
     });
     this.stage.add(this.backgroundLayer, this.annotationLayer, this.drawingLayer);
     applyViewportStageSize(this.stage, this.container);
@@ -106,10 +107,20 @@ export class CanvasController {
   private getStyleReferenceSize() {
     return getStyleReferenceSize(this.imageMeta, this.stage);
   }
-  async loadImage(file: File): Promise<EditorImage> {
+  async loadImage(file: File, sourcePath: string | null = null): Promise<EditorImage> {
     this.textInputOverlay.finish(true);
     const src = await readFileAsDataUrl(file);
-    const image = await loadImage(src);
+    return this.loadImageSource({
+      src,
+      width: 0,
+      height: 0,
+      fileName: file.name,
+      sourcePath
+    });
+  }
+  async loadImageSource(imageSource: EditorImage): Promise<EditorImage> {
+    this.textInputOverlay.finish(true);
+    const image = await loadImage(imageSource.src);
     this.backgroundLayer.destroyChildren();
     this.backgroundImageNode = new Konva.Image({
       x: 0,
@@ -122,14 +133,29 @@ export class CanvasController {
     this.stage.width(image.width);
     this.stage.height(image.height);
     const meta = {
-      src,
+      src: imageSource.src,
       width: image.width,
-      height: image.height
+      height: image.height,
+      fileName: imageSource.fileName,
+      sourcePath: imageSource.sourcePath
     };
     this.imageMeta = meta;
     this.applyAutoFitScale();
     this.stage.draw();
     return meta;
+  }
+  clearImage() {
+    this.textInputOverlay.finish(false);
+    this.backgroundLayer.destroyChildren();
+    this.annotationLayer.destroyChildren();
+    this.drawingLayer.destroyChildren();
+    this.backgroundImageNode = null;
+    this.imageMeta = null;
+    this.displayScale = 1;
+    this.stage.scale({ x: 1, y: 1 });
+    this.stage.position({ x: 0, y: 0 });
+    applyViewportStageSize(this.stage, this.container);
+    this.stage.draw();
   }
   toDataUrl() {
     return toDataUrlAtOriginalScale(this.stage, this.imageMeta, this.displayScale, (scale) =>

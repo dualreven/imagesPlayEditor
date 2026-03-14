@@ -45,6 +45,7 @@ export function createActionListSortable(options: CreateActionListSortableOption
     group: "frame-actions",
     animation: 140,
     draggable: ".frame-action-item",
+    emptyInsertThreshold: 20,
     forceFallback: true,
     fallbackOnBody: true,
     fallbackClass: "frame-action-drag-ghost",

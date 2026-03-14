@@ -6,6 +6,7 @@ interface TextInputOverlayOptions {
   getStageRect: () => DOMRect;
   getDisplayScale: () => number;
   getStyleReferenceSize: () => number;
+  getHostRect: () => DOMRect;
 }
 
 export class TextInputOverlayController {
@@ -13,6 +14,8 @@ export class TextInputOverlayController {
   private getStageRect: () => DOMRect;
   private getDisplayScale: () => number;
   private getStyleReferenceSize: () => number;
+  private getHostRect: () => DOMRect;
+  private activePanel: HTMLDivElement | null = null;
   private activeTextInput: HTMLTextAreaElement | null = null;
   private activeTextCommit: ((content: string) => void) | null = null;
 
@@ -21,6 +24,7 @@ export class TextInputOverlayController {
     this.getStageRect = options.getStageRect;
     this.getDisplayScale = options.getDisplayScale;
     this.getStyleReferenceSize = options.getStyleReferenceSize;
+    this.getHostRect = options.getHostRect;
   }
 
   isActive() {
@@ -31,15 +35,41 @@ export class TextInputOverlayController {
     this.finish(true);
     const host = this.getHost();
     const displayPoint = this.getDisplayPoint(point);
+    const panel = document.createElement("div");
+    panel.className = "text-input-overlay-panel";
+    panel.style.left = `${displayPoint.x}px`;
+    panel.style.top = `${displayPoint.y}px`;
+
     const input = document.createElement("textarea");
     input.className = "text-input-overlay";
     input.placeholder = "输入文字...";
     input.value = initialValue;
-    input.style.left = `${displayPoint.x}px`;
-    input.style.top = `${displayPoint.y}px`;
     input.style.color = style.color;
     input.style.fontSize = `${resolveAnnotationStyle(style, this.getStyleReferenceSize()).fontSize * this.getDisplayScale()}px`;
-    host.append(input);
+    input.style.width = `${this.getPreferredWidth(displayPoint.x)}px`;
+    const actions = document.createElement("div");
+    actions.className = "text-input-overlay-actions";
+
+    const cancelButton = document.createElement("button");
+    cancelButton.type = "button";
+    cancelButton.className = "text-input-overlay-btn is-cancel";
+    cancelButton.textContent = "取消";
+    cancelButton.addEventListener("click", () => {
+      this.finish(false);
+    });
+
+    const confirmButton = document.createElement("button");
+    confirmButton.type = "button";
+    confirmButton.className = "text-input-overlay-btn is-confirm";
+    confirmButton.textContent = "确认";
+    confirmButton.addEventListener("click", () => {
+      this.finish(true);
+    });
+
+    actions.append(cancelButton, confirmButton);
+    panel.append(input, actions);
+    host.append(panel);
+    this.activePanel = panel;
     this.activeTextInput = input;
     this.activeTextCommit = onCommit;
     const resize = () => {
@@ -48,17 +78,10 @@ export class TextInputOverlayController {
     };
     input.addEventListener("input", resize);
     input.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" && !event.shiftKey) {
-        event.preventDefault();
-        input.blur();
-      }
       if (event.key === "Escape") {
         event.preventDefault();
         this.finish(false);
       }
-    });
-    input.addEventListener("blur", () => {
-      this.finish(true);
     });
     resize();
     input.focus();
@@ -66,16 +89,19 @@ export class TextInputOverlayController {
 
   finish(shouldCommit: boolean) {
     if (!this.activeTextInput) {
+      this.activePanel = null;
       this.activeTextInput = null;
       this.activeTextCommit = null;
       return;
     }
+    const panel = this.activePanel;
     const input = this.activeTextInput;
     const commit = this.activeTextCommit;
+    this.activePanel = null;
     this.activeTextInput = null;
     this.activeTextCommit = null;
     const content = input.value.trim();
-    input.remove();
+    panel?.remove();
     if (shouldCommit && content && commit) {
       commit(content);
     }
@@ -93,5 +119,11 @@ export class TextInputOverlayController {
       x: stageRect.left - hostRect.left + host.scrollLeft + point.x * this.getDisplayScale(),
       y: stageRect.top - hostRect.top + host.scrollTop + point.y * this.getDisplayScale()
     };
+  }
+
+  private getPreferredWidth(offsetLeft: number) {
+    const hostWidth = this.getHostRect().width;
+    const remaining = Math.max(160, hostWidth - offsetLeft - 28);
+    return Math.min(360, remaining);
   }
 }

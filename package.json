@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "node scripts/sync-build-info.mjs",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "lint": "npm run lint:ts && npm run lint:rust && npm run lint:lines",

@@ -53,31 +53,74 @@
   gap: 6px;
 }
 
+.frame-title-actions .toolbar-icon-button[data-tooltip]:hover::before,
+.frame-title-actions .toolbar-icon-button[data-tooltip]:focus-visible::before {
+  top: calc(100% + 8px);
+  bottom: auto;
+}
+
 .frame-desc-hint {
   font-size: 11px;
   opacity: 0.9;
 }
 
-:is(.frame-exclusive-btn, .frame-edit-btn, .frame-delete-btn) {
+:is(.frame-exclusive-btn, .frame-edit-btn, .frame-copy-btn, .frame-delete-btn) {
   border: 1px solid rgba(255, 255, 255, 0.85);
   background: rgba(255, 255, 255, 0.15);
   color: #fff;
   border-radius: 7px;
-  padding: 2px 7px;
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  padding: 0;
   font-size: 10px;
   min-height: auto;
 }
 
 .frame-exclusive-btn.is-active {
-  background: rgba(255, 255, 255, 0.32);
+  border-color: rgba(220, 252, 231, 0.95);
+  background: linear-gradient(180deg, rgba(34, 197, 94, 0.9), rgba(22, 163, 74, 0.92));
+  box-shadow: 0 0 0 1px rgba(220, 252, 231, 0.5), 0 6px 16px rgba(20, 83, 45, 0.22);
 }
 
 .frame-exclusive-btn {
-  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(191, 219, 254, 0.92);
+  background: linear-gradient(180deg, rgba(30, 64, 175, 0.3), rgba(30, 64, 175, 0.14));
 }
 
-:is(.frame-edit-btn, .frame-delete-btn):hover {
+.frame-exclusive-btn .btn-icon {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.frame-exclusive-btn.is-active .btn-icon {
+  background: rgba(240, 253, 244, 0.24);
+}
+
+.frame-copy-btn {
+  border-color: rgba(224, 231, 255, 0.92);
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.88), rgba(67, 56, 202, 0.9));
+}
+
+:is(.frame-edit-btn, .frame-copy-btn, .frame-delete-btn):hover {
   background: rgba(255, 255, 255, 0.25);
+}
+
+.frame-copy-btn:hover {
+  background: linear-gradient(180deg, rgba(129, 140, 248, 0.95), rgba(79, 70, 229, 0.95));
+}
+
+.frame-delete-btn {
+  border-color: rgba(254, 202, 202, 0.92);
+  background: linear-gradient(180deg, rgba(239, 68, 68, 0.96), rgba(185, 28, 28, 0.96));
+  box-shadow: 0 6px 16px rgba(127, 29, 29, 0.2);
+}
+
+.frame-delete-btn .btn-icon {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.frame-delete-btn:hover {
+  background: linear-gradient(180deg, rgba(248, 113, 113, 0.98), rgba(220, 38, 38, 0.98));
 }
 
 #delete-action-btn {

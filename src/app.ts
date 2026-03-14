@@ -2,6 +2,7 @@ import { CanvasController, getSaveModeText, queryAppDom } from "@modules";
 import { APP_TEMPLATE } from "./app-template";
 import { createExportRuntime } from "./app-export-runtime";
 import { createAppMountContext } from "./app-mount-context";
+import { createProjectRuntime, sanitizeFileInputPath } from "./app-project-runtime";
 import { createTimelineRuntime } from "./app-timeline-runtime";
 import { createAppRefreshRuntime } from "./app-refresh-runtime";
 import { bindAppEvents } from "./app-events";
@@ -9,6 +10,7 @@ import { createCanvasCallbacks } from "./app-canvas-callbacks";
 import { createAppEventHandlers } from "./app-handlers";
 import { createInitialState } from "./app-state";
 import {
+  duplicateFrameById as duplicateFrameByIdInState,
   deleteFrameById as deleteFrameByIdInState,
   removeActionsFromState,
   toggleClearBeforeFrame as toggleClearBeforeFrameInState,
@@ -29,16 +31,25 @@ export function mountApp(root: HTMLDivElement) {
     exportCloseBtn,
     settingsBtn,
     settingsDialog,
+    settingTabButtons,
     frameDescInput,
     settingSavePath,
     settingNamePattern,
     settingPatternTip,
     settingPreview,
+    settingVersionLineMain,
+    settingVersionLineDetail,
+    settingVersionLineTime,
+    settingUpdateList,
+    settingHistoryList,
+    settingHistoryFilePath,
+    settingOpenHistoryBtn,
     settingCancelBtn,
     settingSaveBtn,
     frameDescCancelBtn,
     frameDescSaveBtn,
     imageInput,
+    projectInput,
     exportFrameList,
     exportFeedback,
     selectedInfo,
@@ -47,11 +58,13 @@ export function mountApp(root: HTMLDivElement) {
     styleArrow,
     styleFont,
     applyStyleBtn,
+    frameVisibilitySlider,
+    frameVisibilityValue,
     addEmptyFrameBtn,
     addClearBtn,
-    toggleFrameFocusBtn,
     toggleStepLockBtn,
     deleteActionBtn,
+    exportProjectBtn,
     exportBtn,
     toolButtons
   } = queryAppDom(root);
@@ -90,14 +103,16 @@ export function mountApp(root: HTMLDivElement) {
     styleArrow,
     styleFont,
     applyStyleBtn,
+    frameVisibilitySlider,
+    frameVisibilityValue,
     toggleStepLockBtn,
     deleteActionBtn,
-    addClearBtn,
-    toggleFrameFocusBtn
+    addClearBtn
   });
   const {
     styleControls,
     actionControls,
+    frameFilterControls,
     collectStyleFromInputs,
     openFrameDescEditor,
     closeFrameDescEditor,
@@ -106,6 +121,7 @@ export function mountApp(root: HTMLDivElement) {
 
   const toggleClearBeforeFrame = (frameId: string) => toggleClearBeforeFrameInState(state, frameId);
   const toggleFrameExclusive = (frameId: string) => toggleFrameExclusiveInState(state, frameId);
+  const duplicateFrameById = (frameId: string) => duplicateFrameByIdInState(state, frameId);
   const removeActions = (actionIds: string[]) => removeActionsFromState(state, actionIds);
   const deleteFrameById = (frameId: string) =>
     deleteFrameByIdInState(state, frameId, {
@@ -120,6 +136,10 @@ export function mountApp(root: HTMLDivElement) {
     setStatus,
     setExportFeedback,
     refresh: () => refresh()
+  });
+  const projectRuntime = createProjectRuntime({
+    state,
+    controller
   });
   const timelineSortableSystem = createTimelineRuntime({
     root: frameListPanel,
@@ -136,8 +156,10 @@ export function mountApp(root: HTMLDivElement) {
     toolButtons,
     styleControls,
     actionControls,
+    frameFilterControls,
     setStatus,
     openFrameDescEditor,
+    duplicateFrameById,
     deleteFrameById,
     toggleFrameExclusive,
     toggleClearBeforeFrame,
@@ -151,10 +173,19 @@ export function mountApp(root: HTMLDivElement) {
     state,
     exportDialog,
     settingsDialog,
+    settingTabButtons,
     settingSavePath,
     settingNamePattern,
     settingPatternTip,
     settingPreview,
+    settingVersionLineMain,
+    settingVersionLineDetail,
+    settingVersionLineTime,
+    settingUpdateList,
+    settingHistoryList,
+    settingHistoryFilePath,
+    settingOpenHistoryBtn,
+    settingSaveBtn,
     frameDescInput,
     getEditingFrameDescId,
     refresh,
@@ -165,7 +196,9 @@ export function mountApp(root: HTMLDivElement) {
     getSelectedAnnotation: () => refreshRuntime.getSelectedAnnotation(),
     toggleClearBeforeFrame,
     removeActions,
-    loadImage: (file) => controller.loadImage(file),
+    loadImage: (file, sourcePath) => controller.loadImage(file, sanitizeFileInputPath(sourcePath, file.name)),
+    exportProject: projectRuntime.exportProject,
+    importProject: projectRuntime.importProject,
     runExport: exportRuntime.runExport
   });
   const unbindAppEvents = bindAppEvents({
@@ -173,9 +206,11 @@ export function mountApp(root: HTMLDivElement) {
     openExportPanelBtn,
     exportCloseBtn,
     settingsBtn,
+    settingTabButtons,
     settingCancelBtn,
     settingNamePattern,
     settingSaveBtn,
+    settingOpenHistoryBtn,
     frameDescCancelBtn,
     frameDescSaveBtn,
     styleColor,
@@ -184,12 +219,14 @@ export function mountApp(root: HTMLDivElement) {
     styleFont,
     applyStyleBtn,
     imageInput,
+    projectInput,
     addEmptyFrameBtn,
     addClearBtn,
     timelinePanel,
-    toggleFrameFocusBtn,
+    frameVisibilitySlider,
     toggleStepLockBtn,
     deleteActionBtn,
+    exportProjectBtn,
     exportBtn,
     ...appEventHandlers
   });

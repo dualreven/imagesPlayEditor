@@ -1,4 +1,5 @@
 import {
+  assignAnnotationIdentity,
   clearActionSelection,
   createAnnotationStep,
   createFrame,
@@ -14,7 +15,10 @@ interface CanvasCallbacks {
   onRequireImage: () => void;
 }
 
-type AppCanvasState = Pick<AppState, "annotations" | "actions" | "frames" | "selectedFrameId" | "selectedActionId" | "selectedAnnotationId">;
+type AppCanvasState = Pick<
+  AppState,
+  "annotations" | "annotationCounters" | "actions" | "frames" | "selectedFrameId" | "selectedActionId" | "selectedAnnotationId"
+>;
 
 interface CreateCanvasCallbacksOptions {
   state: AppCanvasState;
@@ -27,8 +31,11 @@ export function createCanvasCallbacks(options: CreateCanvasCallbacksOptions): Ca
   const { state, refresh, setStatus, syncStyleInputsFromSelected } = options;
   return {
     onAnnotationCreated: (annotation) => {
-      state.annotations.set(annotation.id, annotation);
-      const action = createAnnotationStep(annotation.id);
+      const nextSequence = state.annotationCounters[annotation.kind] + 1;
+      const identifiedAnnotation = assignAnnotationIdentity(annotation, nextSequence);
+      state.annotationCounters[annotation.kind] = nextSequence;
+      state.annotations.set(identifiedAnnotation.id, identifiedAnnotation);
+      const action = createAnnotationStep(identifiedAnnotation.id);
       state.actions.set(action.id, action);
       const selectedIndex = state.selectedFrameId ? state.frames.findIndex((frame) => frame.id === state.selectedFrameId) : -1;
       if (selectedIndex >= 0) {
@@ -38,7 +45,11 @@ export function createCanvasCallbacks(options: CreateCanvasCallbacksOptions): Ca
       }
       clearActionSelection(state);
       refresh();
-      setStatus(selectedIndex >= 0 ? `已添加${annotation.kind}标注并追加到选中帧` : `已添加${annotation.kind}标注并创建新帧`);
+      setStatus(
+        selectedIndex >= 0
+          ? `已添加标注 ${identifiedAnnotation.name} 并追加到选中帧`
+          : `已添加标注 ${identifiedAnnotation.name} 并创建新帧`
+      );
     },
     onAnnotationSelected: (annotationId) => {
       state.selectedAnnotationId = annotationId;

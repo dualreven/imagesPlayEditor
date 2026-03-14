@@ -1,3 +1,4 @@
+import { renderAntIcon } from "../ui";
 import type { Frame } from "../models";
 import type { RenderFramePanelOptions } from "./frame-panel-types";
 
@@ -13,12 +14,19 @@ function formatDescriptionHint(description: string, maxLength = 15) {
   return `${chars.slice(0, maxLength).join("")}...`;
 }
 
-function createHeaderActionButton(label: string, className: string, title: string, onClick: () => void) {
+function createHeaderActionButton(
+  iconName: "pin" | "pinOff" | "edit" | "delete" | "copy",
+  className: string,
+  title: string,
+  onClick: () => void
+) {
   const button = document.createElement("button");
   button.type = "button";
-  button.className = className;
-  button.textContent = label;
+  button.className = `${className} toolbar-icon-button`;
+  button.innerHTML = renderAntIcon(iconName);
   button.title = title;
+  button.setAttribute("aria-label", title);
+  button.dataset.tooltip = title;
   button.addEventListener("click", (event) => {
     event.stopPropagation();
     onClick();
@@ -31,10 +39,10 @@ export function createFrameHeader(
   frameIndex: number,
   options: Pick<
     RenderFramePanelOptions,
-    "onSelectFrame" | "onEditFrame" | "onDeleteFrame" | "onToggleFrameExclusive"
+    "onSelectFrame" | "onEditFrame" | "onDuplicateFrame" | "onDeleteFrame" | "onToggleFrameExclusive"
   >
 ) {
-  const { onSelectFrame, onEditFrame, onDeleteFrame, onToggleFrameExclusive } = options;
+  const { onSelectFrame, onEditFrame, onDuplicateFrame, onDeleteFrame, onToggleFrameExclusive } = options;
   const header = document.createElement("header");
   header.className = "frame-header";
   header.title = frame.description.trim() ? frame.description : "无描述";
@@ -54,22 +62,25 @@ export function createFrameHeader(
   hint.textContent = formatDescriptionHint(frame.description, 15);
 
   const exclusiveButton = createHeaderActionButton(
-    frame.exclusive ? "独占开" : "独占关",
+    frame.exclusive ? "pin" : "pinOff",
     "frame-exclusive-btn",
-    "切换此帧独占",
+    frame.exclusive ? "当前已开启独占，点击关闭" : "当前未开启独占，点击开启",
     () => onToggleFrameExclusive(frame.id)
   );
   if (frame.exclusive) {
     exclusiveButton.classList.add("is-active");
   }
-  const editButton = createHeaderActionButton("编辑", "frame-edit-btn", "编辑此帧描述", () =>
+  const editButton = createHeaderActionButton("edit", "frame-edit-btn", "编辑此帧描述", () =>
     onEditFrame(frame.id)
   );
-  const deleteButton = createHeaderActionButton("删除", "frame-delete-btn", "删除此帧", () =>
+  const copyButton = createHeaderActionButton("copy", "frame-copy-btn", "复制此帧到下一帧", () =>
+    onDuplicateFrame(frame.id)
+  );
+  const deleteButton = createHeaderActionButton("delete", "frame-delete-btn", "删除此帧", () =>
     onDeleteFrame(frame.id)
   );
 
-  titleActions.append(exclusiveButton, editButton, deleteButton);
+  titleActions.append(exclusiveButton, editButton, copyButton, deleteButton);
   title.append(titleText, titleActions);
   main.append(title, hint);
   header.append(main);

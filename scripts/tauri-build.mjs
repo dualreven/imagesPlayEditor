@@ -119,6 +119,10 @@ async function writeBuildConfig(sourceConfigPath, tempConfigPath, semver) {
 function runTauriBuild(tempConfigPath) {
   return new Promise((resolve, reject) => {
     const child = spawn(`npm run _tauri:build:raw -- --config "${tempConfigPath}"`, {
+      env: {
+        ...process.env,
+        SKIP_BUILD_INFO_SYNC: "1"
+      },
       stdio: "inherit",
       shell: true
     });

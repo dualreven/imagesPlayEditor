@@ -9,6 +9,10 @@ import {
   writeGeneratedBuildInfo
 } from "./build-info-utils.mjs";
 
+function shouldSkipBuildInfoSync() {
+  return process.env.SKIP_BUILD_INFO_SYNC === "1";
+}
+
 async function readVersionState(statePath) {
   try {
     const raw = await fs.readFile(statePath, "utf8");
@@ -22,6 +26,9 @@ async function readVersionState(statePath) {
 }
 
 async function main() {
+  if (shouldSkipBuildInfoSync()) {
+    return;
+  }
   const root = process.cwd();
   assertCleanGitWorktree(root);
   const statePath = path.join(root, ".ai-temp", "memory-bank", "build-version-state.json");

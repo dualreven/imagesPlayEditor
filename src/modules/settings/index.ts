@@ -16,10 +16,25 @@ const DEFAULT_SETTINGS: ExportSettings = {
   filePattern: "step_[n3]"
 };
 const TOKEN_REGEX = /\[n(\d{1,3})\]/i;
+const TOKEN_LITERAL_REGEX = /\[n\d{1,3}\]/gi;
 const FILE_UNSAFE_REGEX = /[<>:"/\\|?*]/g;
+const PATTERN_UNSAFE_REGEX = /\[|\]/g;
 
 function sanitizeFileStem(value: string) {
   return value.replace(FILE_UNSAFE_REGEX, "_").trim();
+}
+
+function buildPatternStemFromImageName(fileName: string) {
+  const stem = fileName
+    .trim()
+    .replace(/\.[^.]+$/, "")
+    .replace(TOKEN_LITERAL_REGEX, "")
+    .replace(PATTERN_UNSAFE_REGEX, "_");
+  const normalized = sanitizeFileStem(stem);
+  if (!normalized) {
+    throw new Error(`Cannot derive export file pattern from image name: ${fileName}`);
+  }
+  return normalized;
 }
 
 export function isTauriRuntime() {
@@ -85,4 +100,8 @@ export function buildPreviewNames(pattern: string, count = 4): string[] {
     names.push(buildStepFileStem(pattern, index));
   }
   return names;
+}
+
+export function buildFilePatternFromImageName(fileName: string) {
+  return `${buildPatternStemFromImageName(fileName)}_[n3]`;
 }

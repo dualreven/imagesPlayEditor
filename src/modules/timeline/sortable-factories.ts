@@ -1,7 +1,38 @@
-import Sortable, { type SortableEvent } from "sortablejs";
+import Sortable, { type MoveEvent, type SortableEvent } from "sortablejs";
 
 import { findActionInsertIndex, readTimelineOrder } from "./sortable-order";
+import { isNewFrameDropzoneId, readNewFrameDropzoneInsertIndex } from "./new-frame-dropzone";
 import type { MovedKind, TimelineOrderChange } from "./sortable-types";
+
+function setVisibleNewFrameDropzones(root: HTMLElement, insertIndexes: number[]) {
+  const visibleInsertIndexes = new Set(insertIndexes);
+  root.querySelectorAll<HTMLElement>(".frame-new-dropzone").forEach((element) => {
+    const insertIndex = Number(element.dataset.insertIndex);
+    element.classList.toggle("is-visible", visibleInsertIndexes.has(insertIndex));
+  });
+}
+
+function clearVisibleNewFrameDropzones(root: HTMLElement) {
+  root.querySelectorAll<HTMLElement>(".frame-new-dropzone.is-visible").forEach((element) => {
+    element.classList.remove("is-visible");
+  });
+}
+
+function resolveFrameInsertIndexes(root: HTMLElement, frameId: string | null) {
+  if (!frameId) {
+    return [];
+  }
+  if (isNewFrameDropzoneId(frameId)) {
+    const insertIndex = readNewFrameDropzoneInsertIndex(frameId);
+    return insertIndex === null ? [] : [insertIndex];
+  }
+  const frameCards = [...root.querySelectorAll<HTMLElement>(".frame-card")];
+  const frameIndex = frameCards.findIndex((card) => card.dataset.frameId === frameId);
+  if (frameIndex < 0) {
+    return [];
+  }
+  return [frameIndex, frameIndex + 1];
+}
 
 interface CreateTimelineRootSortableOptions {
   root: HTMLElement;
@@ -51,9 +82,19 @@ export function createActionListSortable(options: CreateActionListSortableOption
     fallbackClass: "frame-action-drag-ghost",
     ghostClass: "frame-action-drop-placeholder",
     chosenClass: "is-drag-source",
-    onStart: () => root.classList.add("is-dragging"),
+    onStart: (event: SortableEvent) => {
+      root.classList.add("is-dragging", "is-action-dragging");
+      const sourceFrameId = (event.from as HTMLElement | null)?.dataset.frameId ?? null;
+      setVisibleNewFrameDropzones(root, resolveFrameInsertIndexes(root, sourceFrameId));
+    },
+    onMove: (event: MoveEvent) => {
+      const targetFrameId = (event.to as HTMLElement | null)?.dataset.frameId ?? null;
+      setVisibleNewFrameDropzones(root, resolveFrameInsertIndexes(root, targetFrameId));
+      return true;
+    },
     onEnd: (event: SortableEvent) => {
-      root.classList.remove("is-dragging");
+      root.classList.remove("is-dragging", "is-action-dragging");
+      clearVisibleNewFrameDropzones(root);
       const item = event.item as HTMLElement;
       const to = event.to as HTMLElement;
       const actionId = item.dataset.actionId ?? null;

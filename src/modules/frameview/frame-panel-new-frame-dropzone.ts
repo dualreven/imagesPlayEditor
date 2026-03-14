@@ -3,6 +3,7 @@ import { createNewFrameDropzoneId } from "../timeline";
 export function createNewFrameDropzoneCard(insertIndex: number) {
   const card = document.createElement("section");
   card.className = "frame-new-dropzone";
+  card.dataset.insertIndex = String(insertIndex);
 
   const list = document.createElement("ol");
   list.className = "frame-action-list frame-new-dropzone-action-list";

@@ -39,10 +39,10 @@ export function createFrameHeader(
   frameIndex: number,
   options: Pick<
     RenderFramePanelOptions,
-    "onSelectFrame" | "onEditFrame" | "onDuplicateFrame" | "onDeleteFrame" | "onToggleFrameExclusive"
+    "onEditFrame" | "onDuplicateFrame" | "onDeleteFrame" | "onToggleFrameExclusive"
   >
 ) {
-  const { onSelectFrame, onEditFrame, onDuplicateFrame, onDeleteFrame, onToggleFrameExclusive } = options;
+  const { onEditFrame, onDuplicateFrame, onDeleteFrame, onToggleFrameExclusive } = options;
   const header = document.createElement("header");
   header.className = "frame-header";
   header.title = frame.description.trim() ? frame.description : "无描述";
@@ -84,6 +84,5 @@ export function createFrameHeader(
   title.append(titleText, titleActions);
   main.append(title, hint);
   header.append(main);
-  header.addEventListener("click", () => onSelectFrame(frame.id));
   return header;
 }

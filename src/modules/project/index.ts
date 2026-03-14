@@ -41,6 +41,14 @@ interface BuildProjectSnapshotOptions {
   tool: ProjectSnapshot["tool"];
 }
 
+function buildImageStem(imageFileName: string) {
+  const stem = imageFileName.trim().replace(/\.[^.]+$/, "");
+  if (!stem) {
+    throw new Error(`Invalid image file name: ${imageFileName}`);
+  }
+  return stem;
+}
+
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) {
     throw new Error(message);
@@ -235,6 +243,10 @@ export function buildProjectSnapshot(options: BuildProjectSnapshotOptions): Proj
     focusedFrameId: options.focusedFrameId,
     tool: options.tool
   };
+}
+
+export function buildZipProjectFileName(imageFileName: string) {
+  return `${buildImageStem(imageFileName)}_标注工程.json`;
 }
 
 export function parseProjectSnapshot(jsonText: string): ProjectSnapshot {

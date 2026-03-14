@@ -33,6 +33,10 @@
   padding: 0;
 }
 
+.frame-new-dropzone.is-visible {
+  display: block;
+}
+
 .frame-new-dropzone-action-list {
   min-height: 30px;
   padding: 0;
@@ -97,12 +101,12 @@
   opacity: 0.88;
 }
 
-.frame-list-panel.is-dragging .frame-new-dropzone {
-  display: block;
-}
-
 .frame-list-panel.is-dragging .frame-clear-separator {
   cursor: grabbing;
+}
+
+.frame-list-panel.is-action-dragging .frame-new-dropzone:not(.is-visible) {
+  display: none;
 }
 
 .frame-action-item.is-drag-source {

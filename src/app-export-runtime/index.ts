@@ -1,4 +1,11 @@
-import { buildExportFrames, runExportWithUi, type CanvasController, type ExportFrame } from "@modules";
+import {
+  buildExportFrames,
+  buildProjectSnapshot,
+  buildZipProjectFileName,
+  runExportWithUi,
+  type CanvasController,
+  type ExportFrame
+} from "@modules";
 import type { AppState } from "../app-state";
 
 const frameWait = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
@@ -37,6 +44,11 @@ export function createExportRuntime(options: CreateExportRuntimeOptions): Export
   };
 
   const runExport = async () => {
+    if (!state.image) {
+      setStatus("没有原始图片可导出");
+      setExportFeedback("导出未执行：请先导入原始图片", "error");
+      return;
+    }
     if (state.frames.length === 0) {
       setStatus("没有帧可导出");
       setExportFeedback("导出未执行：请先创建帧", "error");
@@ -48,10 +60,33 @@ export function createExportRuntime(options: CreateExportRuntimeOptions): Export
       setExportFeedback("导出未执行：帧列表为空", "error");
       return;
     }
+    const projectSnapshot = buildProjectSnapshot({
+      image: state.image,
+      style: state.style,
+      exportSettings: state.exportSettings,
+      annotations: state.annotations,
+      actions: state.actions,
+      frames: state.frames,
+      clearBeforeFrameIds: state.clearBeforeFrameIds,
+      annotationCounters: state.annotationCounters,
+      selectedFrameId: state.selectedFrameId,
+      selectedActionId: state.selectedActionId,
+      selectedAnnotationId: state.selectedAnnotationId,
+      focusedFrameId: state.focusedFrameId,
+      tool: state.tool
+    });
     await runExportWithUi({
       frames,
       filePattern: state.exportSettings.filePattern,
       outputDir: state.exportSettings.savePath || undefined,
+      originalImage: {
+        fileName: state.image.fileName,
+        dataUrl: state.image.src
+      },
+      projectFile: {
+        fileName: buildZipProjectFileName(state.image.fileName),
+        content: JSON.stringify(projectSnapshot, null, 2)
+      },
       exportBtn,
       setStatus,
       setExportFeedback,

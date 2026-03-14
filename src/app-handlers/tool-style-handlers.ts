@@ -1,4 +1,12 @@
-import { clearActionSelection, getToolLabel, mergeStyleForAnnotation, updateAnnotationStyle } from "@modules";
+import {
+  buildFilePatternFromImageName,
+  clearActionSelection,
+  getSaveModeText,
+  getToolLabel,
+  mergeStyleForAnnotation,
+  saveExportSettings,
+  updateAnnotationStyle
+} from "@modules";
 import type { CreateAppEventHandlersOptions, EventCallbacks } from "./types";
 
 type ToolAndStyleCallbacks = Pick<
@@ -7,7 +15,7 @@ type ToolAndStyleCallbacks = Pick<
 >;
 
 export function createToolAndStyleHandlers(options: CreateAppEventHandlersOptions): ToolAndStyleCallbacks {
-  const { state, refresh, setStatus, collectStyleFromInputs, getSelectedAnnotation, loadImage } = options;
+  const { state, refresh, setStatus, setExportFeedback, collectStyleFromInputs, getSelectedAnnotation, loadImage } = options;
 
   return {
     onToolSelect: (tool) => {
@@ -38,13 +46,20 @@ export function createToolAndStyleHandlers(options: CreateAppEventHandlersOption
     onImageInputChange: async (file, sourcePath) => {
       if (!file) return;
       try {
+        const filePattern = buildFilePatternFromImageName(file.name);
         const image = await loadImage(file, sourcePath);
         state.image = image;
+        state.exportSettings = {
+          ...state.exportSettings,
+          filePattern
+        };
+        saveExportSettings(state.exportSettings);
         refresh();
         setStatus(`图片已加载: ${image.width}x${image.height}`);
+        setExportFeedback(`${getSaveModeText(state.exportSettings)} | 命名格式: ${state.exportSettings.filePattern}`);
       } catch (error) {
         console.error(error);
-        setStatus("图片加载失败");
+        setStatus(`图片加载失败: ${(error as Error).message}`);
       }
     }
   };

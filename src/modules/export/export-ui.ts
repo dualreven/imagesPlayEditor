@@ -9,6 +9,14 @@ export interface RunExportWithUiOptions {
   frames: ExportFrame[];
   filePattern: string;
   outputDir?: string;
+  originalImage: {
+    fileName: string;
+    dataUrl: string;
+  };
+  projectFile: {
+    fileName: string;
+    content: string;
+  };
   exportBtn: HTMLButtonElement;
   setStatus: (message: string) => void;
   setExportFeedback: (message: string, kind?: ExportFeedbackKind) => void;
@@ -17,7 +25,7 @@ export interface RunExportWithUiOptions {
 }
 
 export async function runExportWithUi(options: RunExportWithUiOptions) {
-  const { frames, filePattern, outputDir, exportBtn, setStatus, setExportFeedback, renderFrame, onFinalize } = options;
+  const { frames, filePattern, outputDir, originalImage, projectFile, exportBtn, setStatus, setExportFeedback, renderFrame, onFinalize } = options;
   const setButtonContent = (label: string) => {
     exportBtn.innerHTML = `<span class="export-btn-text">${label}</span>${renderAntIcon("export")}`;
   };
@@ -31,6 +39,8 @@ export async function runExportWithUi(options: RunExportWithUiOptions) {
     const result = await exportFramesAsZip(frames, renderFrame, {
       filePattern,
       outputDir,
+      originalImage,
+      projectFile,
       onProgress: (current, total) => {
         setButtonContent(`导出中 ${current}/${total}`);
         setExportFeedback(`正在生成第 ${current}/${total} 帧：${buildStepFileStem(filePattern, current)}.png`, "info");

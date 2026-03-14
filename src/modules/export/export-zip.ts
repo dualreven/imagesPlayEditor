@@ -17,6 +17,14 @@ export interface ExportZipOptions {
   filePattern?: string;
   outputDir?: string;
   onProgress?: ExportProgressHandler;
+  originalImage?: {
+    fileName: string;
+    dataUrl: string;
+  };
+  projectFile?: {
+    fileName: string;
+    content: string;
+  };
 }
 
 function getBase64Payload(dataUrl: string) {
@@ -41,6 +49,11 @@ function downloadBlob(blob: Blob, fileName: string) {
 
 function ensurePngFileName(stemOrName: string) {
   return stemOrName.toLowerCase().endsWith(".png") ? stemOrName : `${stemOrName}.png`;
+}
+
+function appendDataUrlFile(zip: JSZip, fileName: string, dataUrl: string) {
+  const base64Payload = getBase64Payload(dataUrl);
+  zip.file(fileName, base64Payload, { base64: true });
 }
 
 function toDescriptionMarkdown(fileNames: string[], frames: ExportFrame[]) {
@@ -88,6 +101,12 @@ export async function exportFramesAsZip(
     options.onProgress?.(index + 1, frames.length);
   }
   zip.file("frame-descriptions.md", toDescriptionMarkdown(fileNames, frames));
+  if (options.originalImage) {
+    appendDataUrlFile(zip, options.originalImage.fileName, options.originalImage.dataUrl);
+  }
+  if (options.projectFile) {
+    zip.file(options.projectFile.fileName, options.projectFile.content);
+  }
 
   const blob = await zip.generateAsync({ type: "blob" });
   const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");

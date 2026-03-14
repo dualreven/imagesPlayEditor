@@ -85,6 +85,7 @@ export function deleteFrameById(state: AppState, frameId: string, options: Delet
   const { editingFrameDescId, closeFrameDescEditor } = options;
   const currentIndex = state.frames.findIndex((item) => item.id === frameId);
   if (currentIndex < 0) return false;
+  const wasFrameSelected = state.selectedFrameId === frameId;
   const nextFrameId = state.frames[currentIndex + 1]?.id ?? null;
   const previousFrameId = state.frames[currentIndex - 1]?.id ?? null;
   const shouldKeepClearAfterDelete = state.clearBeforeFrameIds.has(frameId);
@@ -97,12 +98,16 @@ export function deleteFrameById(state: AppState, frameId: string, options: Delet
   if (state.focusedFrameId === frameId) {
     state.focusedFrameId = nextFrameId ?? previousFrameId;
   }
+  const selectedActionWillBeRemoved = state.selectedActionId ? removedActionIds.includes(state.selectedActionId) : false;
   removeActionsFromState(state, removedActionIds);
-  const nextSelectedFrameId = state.frames.length > 0 ? state.frames[Math.max(0, state.frames.length - 1)].id : null;
-  if (nextSelectedFrameId) {
-    selectFrameOnly(state, nextSelectedFrameId);
-  } else {
+  if (state.frames.length === 0) {
     clearSelection(state, { resetFocusedView: true });
+  } else if (wasFrameSelected || selectedActionWillBeRemoved) {
+    const nextSelectedFrameId = nextFrameId ?? previousFrameId;
+    if (!nextSelectedFrameId) {
+      throw new Error(`Missing fallback frame after deleting frame: ${frameId}`);
+    }
+    selectFrameOnly(state, nextSelectedFrameId);
   }
   if (editingFrameDescId === frameId) closeFrameDescEditor();
   return true;

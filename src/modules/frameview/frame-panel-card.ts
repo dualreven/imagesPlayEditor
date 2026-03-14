@@ -3,6 +3,13 @@ import { createFrameHeader } from "./frame-panel-header";
 import type { RenderFramePanelOptions } from "./frame-panel-types";
 import { createFrameActionList } from "./frame-panel-actions";
 
+function shouldKeepCurrentSelection(target: EventTarget | null) {
+  if (!(target instanceof Element)) {
+    return false;
+  }
+  return Boolean(target.closest(".frame-action-item, .toolbar-icon-button, .frame-action-drop-placeholder"));
+}
+
 export function createFrameCard(
   frame: Frame,
   frameIndex: number,
@@ -29,7 +36,6 @@ export function createFrameCard(
   }
 
   const header = createFrameHeader(frame, frameIndex, {
-    onSelectFrame: options.onSelectFrame,
     onEditFrame: options.onEditFrame,
     onDuplicateFrame: options.onDuplicateFrame,
     onDeleteFrame: options.onDeleteFrame,
@@ -42,6 +48,13 @@ export function createFrameCard(
     selectedActionId: options.selectedActionId,
     onSelectAction: options.onSelectAction,
     getActionLabel: options.getActionLabel
+  });
+
+  card.addEventListener("click", (event) => {
+    if (shouldKeepCurrentSelection(event.target)) {
+      return;
+    }
+    options.onSelectFrame(frame.id);
   });
 
   card.append(header, list);

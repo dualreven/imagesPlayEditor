@@ -1,7 +1,8 @@
 import {
   closeSettingsDialog,
-  getSaveModeText,
+  getExportSettingsSummaryText,
   normalizeExportSettings,
+  openLocalPath,
   openLocalBuildHistoryFile,
   openSettingsDialog,
   refreshSettingsPatternPreview,
@@ -15,6 +16,7 @@ type DialogCallbacks = Pick<
   EventCallbacks,
   | "onOpenExportDialog"
   | "onCloseExportDialog"
+  | "onOpenExportDirectory"
   | "onOpenSettings"
   | "onCloseSettings"
   | "onSettingTabSelect"
@@ -32,6 +34,8 @@ export function createDialogHandlers(options: CreateAppEventHandlersOptions): Di
     settingsDialog,
     settingTabButtons,
     settingSavePath,
+    settingZipName,
+    settingZipNameTip,
     settingNamePattern,
     settingPatternTip,
     settingPreview,
@@ -59,12 +63,27 @@ export function createDialogHandlers(options: CreateAppEventHandlersOptions): Di
       exportDialog.setAttribute("open", "true");
     },
     onCloseExportDialog: () => closeSettingsDialog(exportDialog),
+    onOpenExportDirectory: async () => {
+      try {
+        const targetPath = (state.exportSettings.savePath || state.lastExportDir || "").trim();
+        if (!targetPath) {
+          throw new Error("当前没有可打开的导出目录，请先导出到本地目录。");
+        }
+        await openLocalPath(targetPath);
+        setStatus(`已打开导出目录: ${targetPath}`);
+      } catch (error) {
+        console.error(error);
+        setStatus(`打开导出目录失败: ${(error as Error).message}`);
+      }
+    },
     onOpenSettings: () =>
       openSettingsDialog(
         {
           dialog: settingsDialog,
           tabButtons: settingTabButtons,
           savePathInput: settingSavePath,
+          zipNameInput: settingZipName,
+          zipNameTip: settingZipNameTip,
           saveBtn: options.settingSaveBtn,
           patternInput: settingNamePattern,
           patternTip: settingPatternTip,
@@ -91,6 +110,8 @@ export function createDialogHandlers(options: CreateAppEventHandlersOptions): Di
       ),
     onSettingPatternInput: () => {
       refreshSettingsPatternPreview({
+        zipNameInput: settingZipName,
+        zipNameTip: settingZipNameTip,
         patternInput: settingNamePattern,
         patternTip: settingPatternTip,
         preview: settingPreview
@@ -108,6 +129,8 @@ export function createDialogHandlers(options: CreateAppEventHandlersOptions): Di
     onSettingSave: () => {
       if (
         !refreshSettingsPatternPreview({
+          zipNameInput: settingZipName,
+          zipNameTip: settingZipNameTip,
           patternInput: settingNamePattern,
           patternTip: settingPatternTip,
           preview: settingPreview
@@ -117,13 +140,14 @@ export function createDialogHandlers(options: CreateAppEventHandlersOptions): Di
       }
       state.exportSettings = normalizeExportSettings({
         savePath: settingSavePath.value,
-        filePattern: settingNamePattern.value
+        filePattern: settingNamePattern.value,
+        zipFileName: settingZipName.value
       });
       saveExportSettings(state.exportSettings);
       closeSettingsDialog(settingsDialog);
       refresh();
       setStatus("导出设置已保存");
-      setExportFeedback(`${getSaveModeText(state.exportSettings)} | 命名格式: ${state.exportSettings.filePattern}`);
+      setExportFeedback(getExportSettingsSummaryText(state.exportSettings));
     },
     onFrameDescCancel: () => closeFrameDescEditor(),
     onFrameDescSave: () => {

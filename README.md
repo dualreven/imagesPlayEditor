@@ -1,57 +1,76 @@
 # imagesPlayEditor
 
-Rust + Tauri image step annotation editor.
+`imagesPlayEditor` is a Tauri-based desktop editor for turning one source image into a step-by-step annotated image sequence.
 
-## Scope (current)
-- Project skeleton for frontend + Tauri backend
-- Load image and draw annotations (box / arrow / text)
-- Drag-sort timeline and insert system actions (`clear_previous`, `keep_next`)
-- Annotation lock/unlock support
-- Step-by-step frame export as ZIP (`step_001.png`, ...)
-- Independent Git repository
-- Lint/format checks
-- Max 500 lines per source file check
-- Public import channel for modules (`@modules` on frontend, `domain::mod.rs` on backend)
+It combines a TypeScript frontend with a Rust/Tauri shell and is organized around a timeline model of actions and frames.
+
+## Current capabilities
+- Import one image as the editing source.
+- Draw box, arrow, and text annotations.
+- Select, move, edit, and lock annotations.
+- Organize steps with actions, frames, and separators.
+- Drag actions across frames and insert new frames from drop zones.
+- Filter the visible frame independently from the current selection.
+- Export a ZIP that includes rendered step images, frame descriptions, the original image, and the project snapshot JSON.
+- Build a Windows MSI artifact with version and git hash embedded in the file name.
+
+## Tech stack
+- Frontend: TypeScript + Vite + Konva + SortableJS
+- Desktop shell: Tauri 2
+- Native side: Rust
+
+## Requirements
+- Node.js and npm
+- Rust toolchain
+- Windows build prerequisites required by Tauri for MSI packaging
+- A valid git repository with at least one commit for build commands
 
 ## Quick start
-1. Install dependencies:
+1. Install dependencies.
 ```bash
 npm install
 ```
-2. Run frontend dev server:
+2. Run the frontend-only development server.
 ```bash
 npm run dev
 ```
-3. Run Tauri dev app:
+3. Run the Tauri desktop app in development mode.
 ```bash
 npm run tauri:dev
 ```
-4. Run full lint:
+4. Run the full lint suite.
 ```bash
 npm run lint
 ```
-5. Build MSI with auto version + git hash in filename:
+5. Build the MSI with the next automatic monthly version.
 ```bash
 npm run tauri:build
 ```
-6. Build MSI with manual version (`YY.MM.NN`):
+6. Build the MSI with a manual version in `YY.MM.NN` format.
 ```bash
 npm run tauri:build -- --version 26.03.08
 ```
 
-## Rules
-- Keep each source file under 500 lines.
-- Frontend imports from module barrel only:
-  - Allowed: `import { ... } from "@modules"`
-  - Avoid: deep imports like `@/modules/annotation/...`
-- Rust domain modules are exported via `src-tauri/src/domain/mod.rs`.
+## Repository constraints
+- Source files must stay under 500 lines.
+- Frontend modules must be imported through the public module entry, not deep internal paths.
+- Rust domain modules should be re-exported from `src-tauri/src/domain/mod.rs`.
+- Build scripts follow failed-fast behavior and stop on dirty git state or missing git history.
 
-## Build versioning
-- `npm run tauri:build` now uses monthly version format: `YY.MM.NN`.
-- If `--version` is omitted, it auto-continues this month's sequence from `.ai-temp/memory-bank/build-version-state.json`.
-- Each build artifact filename always includes git short hash, e.g.:
-  - `imagesPlayEditor_26.03.08_git-a1b2c3d_x64_en-US.msi`
-- Build is failed-fast when repository has no commit (`HEAD` missing), because git revision is mandatory in artifact naming.
+## Build behavior
+- `npm run lint` runs TypeScript lint, Rust formatting and clippy, plus the 500-line guard.
+- `npm run tauri:build` requires a clean git worktree.
+- Build metadata is written to `src/generated/build-info.ts`.
+- Build history and version state are persisted under `.ai-temp/memory-bank/`.
+- MSI artifacts are renamed to include both display version and git short hash, for example `imagesPlayEditor_26.03.08_git-a1b2c3d_x64_en-US.msi`.
+- After a successful `npm run tauri:build`, the latest MSI is copied into `build-artifacts/msi/` inside the repository so it can be committed and pushed with the repo history.
+- `git push` still only sends committed changes, so the copied MSI must be included in a commit before push.
 
-## Known environment limitation
-- On this machine, `npm run lint:rust` may fail due Windows code integrity policy (`os error 4551`), which blocks Cargo build scripts.
+## Public repository status
+- This repository is public.
+- This repository is licensed under Apache-2.0.
+- See [LICENSE](./LICENSE) for the full terms.
+
+## Project notes
+- [PROJECT_CHECKLIST.md](./PROJECT_CHECKLIST.md) tracks delivery and engineering constraints.
+- [PUBLIC_REPO_CHECKLIST.md](./PUBLIC_REPO_CHECKLIST.md) tracks repository hygiene items specific to public publishing.

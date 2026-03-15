@@ -11,12 +11,15 @@ export interface AppDomRefs {
   frameDescEditor: HTMLElement;
   openExportPanelBtn: HTMLButtonElement;
   exportDialog: HTMLDialogElement;
+  exportOpenDirBtn: HTMLButtonElement;
   exportCloseBtn: HTMLButtonElement;
   settingsBtn: HTMLButtonElement;
   settingsDialog: HTMLDialogElement;
   settingTabButtons: HTMLButtonElement[];
   frameDescInput: HTMLTextAreaElement;
   settingSavePath: HTMLInputElement;
+  settingZipName: HTMLInputElement;
+  settingZipNameTip: HTMLParagraphElement;
   settingNamePattern: HTMLInputElement;
   settingPatternTip: HTMLParagraphElement;
   settingPreview: HTMLParagraphElement;
@@ -62,12 +65,15 @@ export function queryAppDom(root: HTMLDivElement): AppDomRefs {
     frameDescEditor: requiredElement(root.querySelector<HTMLElement>("#frame-desc-editor"), "#frame-desc-editor"),
     openExportPanelBtn: requiredElement(root.querySelector<HTMLButtonElement>("#open-export-panel-btn"), "#open-export-panel-btn"),
     exportDialog: requiredElement(root.querySelector<HTMLDialogElement>("#export-dialog"), "#export-dialog"),
+    exportOpenDirBtn: requiredElement(root.querySelector<HTMLButtonElement>("#export-open-dir-btn"), "#export-open-dir-btn"),
     exportCloseBtn: requiredElement(root.querySelector<HTMLButtonElement>("#export-close-btn"), "#export-close-btn"),
     settingsBtn: requiredElement(root.querySelector<HTMLButtonElement>("#settings-btn"), "#settings-btn"),
     settingsDialog: requiredElement(root.querySelector<HTMLDialogElement>("#settings-dialog"), "#settings-dialog"),
     settingTabButtons: [...root.querySelectorAll<HTMLButtonElement>("[data-settings-tab]")],
     frameDescInput: requiredElement(root.querySelector<HTMLTextAreaElement>("#frame-desc-input"), "#frame-desc-input"),
     settingSavePath: requiredElement(root.querySelector<HTMLInputElement>("#setting-save-path"), "#setting-save-path"),
+    settingZipName: requiredElement(root.querySelector<HTMLInputElement>("#setting-zip-name"), "#setting-zip-name"),
+    settingZipNameTip: requiredElement(root.querySelector<HTMLParagraphElement>("#setting-zip-name-tip"), "#setting-zip-name-tip"),
     settingNamePattern: requiredElement(root.querySelector<HTMLInputElement>("#setting-name-pattern"), "#setting-name-pattern"),
     settingPatternTip: requiredElement(root.querySelector<HTMLParagraphElement>("#setting-pattern-tip"), "#setting-pattern-tip"),
     settingPreview: requiredElement(root.querySelector<HTMLParagraphElement>("#setting-preview"), "#setting-preview"),

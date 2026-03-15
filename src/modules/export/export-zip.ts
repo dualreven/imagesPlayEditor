@@ -2,7 +2,7 @@ import JSZip from "jszip";
 import { invoke } from "@tauri-apps/api/core";
 
 import type { ExportFrame } from "../models";
-import { buildStepFileStem, isTauriRuntime } from "../settings";
+import { buildStepFileStem, isTauriRuntime, normalizeZipFileName } from "../settings";
 
 export interface ExportZipResult {
   fileName: string;
@@ -16,6 +16,8 @@ type ExportProgressHandler = (current: number, total: number) => void;
 export interface ExportZipOptions {
   filePattern?: string;
   outputDir?: string;
+  zipFileName?: string;
+  descriptionFileName?: string;
   onProgress?: ExportProgressHandler;
   originalImage?: {
     fileName: string;
@@ -78,6 +80,10 @@ async function blobToBase64(blob: Blob) {
   return btoa(binary);
 }
 
+function resolveZipFileName(zipFileName: string | undefined) {
+  return normalizeZipFileName(zipFileName);
+}
+
 export async function exportFramesAsZip(
   frames: ExportFrame[],
   renderFrame: (frame: ExportFrame) => Promise<string> | string,
@@ -100,7 +106,7 @@ export async function exportFramesAsZip(
     fileNames.push(fileName);
     options.onProgress?.(index + 1, frames.length);
   }
-  zip.file("frame-descriptions.md", toDescriptionMarkdown(fileNames, frames));
+  zip.file(options.descriptionFileName?.trim() || "frame-descriptions.md", toDescriptionMarkdown(fileNames, frames));
   if (options.originalImage) {
     appendDataUrlFile(zip, options.originalImage.fileName, options.originalImage.dataUrl);
   }
@@ -109,8 +115,7 @@ export async function exportFramesAsZip(
   }
 
   const blob = await zip.generateAsync({ type: "blob" });
-  const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
-  const fileName = `images-play-export-${stamp}.zip`;
+  const fileName = resolveZipFileName(options.zipFileName);
 
   if (options.outputDir && isTauriRuntime()) {
     const zipBase64 = await blobToBase64(blob);

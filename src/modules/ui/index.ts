@@ -102,7 +102,11 @@ export function mergeStyleForAnnotation(annotation: Annotation, draft: Annotatio
 }
 
 export function getSaveModeText(settings: ExportSettings) {
-  return settings.savePath ? `保存路径: ${settings.savePath}` : "保存路径: 浏览器下载目录";
+  return settings.savePath ? `ZIP 路径: ${settings.savePath}` : "ZIP 路径: 浏览器下载目录";
+}
+
+export function getExportSettingsSummaryText(settings: ExportSettings) {
+  return `${getSaveModeText(settings)} | ZIP 名称: ${settings.zipFileName} | 帧命名: ${settings.filePattern}`;
 }
 
 export function renderAntIcon(name: AppIconName) {

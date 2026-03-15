@@ -5,6 +5,7 @@ export * from "./canvas";
 export * from "./export";
 export * from "./frameview";
 export * from "./interpreter";
+export * from "./local-path";
 export * from "./models";
 export * from "./project";
 export * from "./selection";

@@ -8,6 +8,8 @@ export interface CreateAppEventHandlersOptions {
   settingsDialog: HTMLDialogElement;
   settingTabButtons: HTMLButtonElement[];
   settingSavePath: HTMLInputElement;
+  settingZipName: HTMLInputElement;
+  settingZipNameTip: HTMLParagraphElement;
   settingNamePattern: HTMLInputElement;
   settingPatternTip: HTMLParagraphElement;
   settingPreview: HTMLParagraphElement;
@@ -27,6 +29,19 @@ export interface CreateAppEventHandlersOptions {
   closeFrameDescEditor: () => void;
   collectStyleFromInputs: () => void;
   getSelectedAnnotation: () => Annotation | null;
+  loadImageSource: (imageSource: {
+    src: string;
+    width: number;
+    height: number;
+    fileName: string;
+    sourcePath: string | null;
+  }) => Promise<{
+    src: string;
+    width: number;
+    height: number;
+    fileName: string;
+    sourcePath: string | null;
+  }>;
   toggleClearBeforeFrame: (frameId: string) => boolean | null;
   removeActions: (actionIds: string[]) => void;
   loadImage: (file: File, sourcePath: string | null) => Promise<{
@@ -47,6 +62,7 @@ export type EventCallbacks = Pick<
   | "onToolSelect"
   | "onOpenExportDialog"
   | "onCloseExportDialog"
+  | "onOpenExportDirectory"
   | "onOpenSettings"
   | "onCloseSettings"
   | "onSettingTabSelect"
@@ -57,6 +73,7 @@ export type EventCallbacks = Pick<
   | "onFrameDescSave"
   | "onStyleInputChange"
   | "onApplyStyle"
+  | "onRequestImagePick"
   | "onImageInputChange"
   | "onAddEmptyFrame"
   | "onAddClearBefore"

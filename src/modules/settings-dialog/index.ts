@@ -1,8 +1,10 @@
 import { getAppBuildInfo, openBuildHistoryFile } from "../build-info";
 import { isTauriRuntime } from "../settings";
-import { buildPreviewNames, validateFilePattern, type ExportSettings } from "../settings";
+import { buildPreviewNames, validateFilePattern, validateZipFileName, type ExportSettings } from "../settings";
 
 interface SettingsPreviewRefs {
+  zipNameInput: HTMLInputElement;
+  zipNameTip: HTMLParagraphElement;
   patternInput: HTMLInputElement;
   patternTip: HTMLParagraphElement;
   preview: HTMLParagraphElement;
@@ -75,6 +77,17 @@ function renderBuildInfo(
 }
 
 export function refreshSettingsPatternPreview(refs: SettingsPreviewRefs) {
+  const zipValidation = validateZipFileName(refs.zipNameInput.value);
+  if (!zipValidation.valid) {
+    refs.zipNameTip.textContent = zipValidation.message;
+    refs.zipNameTip.dataset.kind = "error";
+    refs.patternTip.textContent = "请先修正 ZIP 导出名称";
+    refs.patternTip.dataset.kind = "error";
+    refs.preview.textContent = "预览：-";
+    return false;
+  }
+  refs.zipNameTip.textContent = "支持输入不带 .zip 的名称，保存时会自动补齐。";
+  refs.zipNameTip.dataset.kind = "info";
   const validation = validateFilePattern(refs.patternInput.value);
   if (!validation.valid) {
     refs.patternTip.textContent = validation.message;
@@ -90,6 +103,7 @@ export function refreshSettingsPatternPreview(refs: SettingsPreviewRefs) {
 
 export function openSettingsDialog(refs: SettingsDialogRefs, settings: ExportSettings) {
   refs.savePathInput.value = settings.savePath;
+  refs.zipNameInput.value = settings.zipFileName;
   refs.patternInput.value = settings.filePattern;
   refreshSettingsPatternPreview(refs);
   renderBuildInfo(refs);

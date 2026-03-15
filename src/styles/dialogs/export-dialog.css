@@ -25,6 +25,18 @@
   margin: 0;
 }
 
+.export-primary-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.export-open-dir-btn {
+  min-height: 42px;
+  white-space: nowrap;
+}
+
 .export-preview-block {
   min-height: 0;
   display: flex;

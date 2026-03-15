@@ -3,6 +3,7 @@ import { isTauri } from "@tauri-apps/api/core";
 export interface ExportSettings {
   savePath: string;
   filePattern: string;
+  zipFileName: string;
 }
 
 export interface ExportSettingsValidation {
@@ -13,7 +14,8 @@ export interface ExportSettingsValidation {
 const STORAGE_KEY = "imagesPlayEditor.exportSettings.v1";
 const DEFAULT_SETTINGS: ExportSettings = {
   savePath: "",
-  filePattern: "step_[n3]"
+  filePattern: "step_[n3]",
+  zipFileName: "images-play-export.zip"
 };
 const TOKEN_REGEX = /\[n(\d{1,3})\]/i;
 const TOKEN_LITERAL_REGEX = /\[n\d{1,3}\]/gi;
@@ -57,7 +59,8 @@ export function loadExportSettings(): ExportSettings {
 export function normalizeExportSettings(input: Partial<ExportSettings>): ExportSettings {
   return {
     savePath: (input.savePath ?? "").trim(),
-    filePattern: (input.filePattern ?? DEFAULT_SETTINGS.filePattern).trim() || DEFAULT_SETTINGS.filePattern
+    filePattern: (input.filePattern ?? DEFAULT_SETTINGS.filePattern).trim() || DEFAULT_SETTINGS.filePattern,
+    zipFileName: normalizeZipFileName(input.zipFileName)
   };
 }
 
@@ -77,6 +80,23 @@ export function validateFilePattern(pattern: string): ExportSettingsValidation {
   const digits = Number(match[1]);
   if (!Number.isInteger(digits) || digits < 1 || digits > 9) {
     return { valid: false, message: "编号位数范围为 1 到 9" };
+  }
+  return { valid: true, message: "" };
+}
+
+export function validateZipFileName(fileName: string): ExportSettingsValidation {
+  const normalized = fileName.trim();
+  if (!normalized) {
+    return { valid: false, message: "ZIP 导出名称不能为空" };
+  }
+  if (FILE_UNSAFE_REGEX.test(normalized)) {
+    FILE_UNSAFE_REGEX.lastIndex = 0;
+    return { valid: false, message: "ZIP 导出名称不能包含路径或非法字符" };
+  }
+  FILE_UNSAFE_REGEX.lastIndex = 0;
+  const stem = normalized.toLowerCase().endsWith(".zip") ? normalized.slice(0, -4).trim() : normalized;
+  if (!stem) {
+    return { valid: false, message: "ZIP 导出名称必须包含文件名主体" };
   }
   return { valid: true, message: "" };
 }
@@ -104,4 +124,32 @@ export function buildPreviewNames(pattern: string, count = 4): string[] {
 
 export function buildFilePatternFromImageName(fileName: string) {
   return `${buildPatternStemFromImageName(fileName)}_[n3]`;
+}
+
+export function buildZipFileNameFromImageName(fileName: string) {
+  return `${buildPatternStemFromImageName(fileName)}.zip`;
+}
+
+export function buildDescriptionMarkdownFileNameFromImageName(fileName: string) {
+  return `${buildPatternStemFromImageName(fileName)}.md`;
+}
+
+export function buildSavePathFromImageSourcePath(sourcePath: string | null, fileName: string) {
+  const normalizedPath = (sourcePath ?? "").trim();
+  if (!normalizedPath || normalizedPath === fileName) {
+    return "";
+  }
+  const separatorIndex = Math.max(normalizedPath.lastIndexOf("\\"), normalizedPath.lastIndexOf("/"));
+  if (separatorIndex <= 0) {
+    return "";
+  }
+  return normalizedPath.slice(0, separatorIndex).trim();
+}
+
+export function normalizeZipFileName(fileName: string | null | undefined) {
+  const normalized = (fileName ?? DEFAULT_SETTINGS.zipFileName).trim();
+  if (!normalized) {
+    return DEFAULT_SETTINGS.zipFileName;
+  }
+  return normalized.toLowerCase().endsWith(".zip") ? normalized : `${normalized}.zip`;
 }

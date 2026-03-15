@@ -26,6 +26,7 @@ export interface AppState {
   selectedActionId: string | null;
   selectedAnnotationId: string | null;
   focusedFrameId: string | null;
+  lastExportDir: string | null;
 }
 
 export function createInitialState(): AppState {
@@ -42,6 +43,7 @@ export function createInitialState(): AppState {
     selectedFrameId: null,
     selectedActionId: null,
     selectedAnnotationId: null,
-    focusedFrameId: null
+    focusedFrameId: null,
+    lastExportDir: null
   };
 }

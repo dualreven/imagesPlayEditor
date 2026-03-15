@@ -53,8 +53,8 @@ function runTauriDev(port) {
   const root = process.cwd();
   const sourceConfigPath = path.join(root, "src-tauri", "tauri.conf.json");
   const tempConfigPath = path.join(root, "src-tauri", "tauri.auto-dev.conf.json");
-  const devUrl = `http://localhost:${port}`;
-  const beforeDevCommand = `npm run dev -- --port ${port} --strictPort`;
+  const devUrl = `http://127.0.0.1:${port}`;
+  const beforeDevCommand = `npm run dev -- --host 127.0.0.1 --port ${port} --strictPort`;
 
   console.log(`Using dev port ${port}`);
   return fs

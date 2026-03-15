@@ -69,6 +69,11 @@ function readNullableString(value: unknown, field: string) {
   return value;
 }
 
+function readOptionalString(value: unknown, field: string) {
+  assert(typeof value === "undefined" || typeof value === "string", `${field} must be a string when provided.`);
+  return typeof value === "string" ? value : undefined;
+}
+
 function readNumber(value: unknown, field: string) {
   assert(typeof value === "number" && Number.isFinite(value), `${field} must be a finite number.`);
   return value;
@@ -274,7 +279,12 @@ export function parseProjectSnapshot(jsonText: string): ProjectSnapshot {
     style: parseStyle(parsed.style, "style"),
     exportSettings: {
       savePath: readString(parsed.exportSettings.savePath, "exportSettings.savePath"),
-      filePattern: readString(parsed.exportSettings.filePattern, "exportSettings.filePattern")
+      filePattern: readString(parsed.exportSettings.filePattern, "exportSettings.filePattern"),
+      zipFileName:
+        readOptionalString(parsed.exportSettings.zipFileName, "exportSettings.zipFileName") ??
+        (parsed.image && isObject(parsed.image) && typeof parsed.image.fileName === "string"
+          ? `${parsed.image.fileName.replace(/\.[^.]+$/, "")}.zip`
+          : "images-play-export.zip")
     },
     annotations: parsed.annotations.map((item) => parseAnnotation(item)),
     actions: parsed.actions.map((item) => parseAction(item)),

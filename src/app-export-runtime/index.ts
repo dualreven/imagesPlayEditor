@@ -1,5 +1,7 @@
 import {
   buildExportFrames,
+  buildDescriptionMarkdownFileNameFromImageName,
+  getDirectoryPathFromFilePath,
   buildProjectSnapshot,
   buildZipProjectFileName,
   runExportWithUi,
@@ -75,10 +77,12 @@ export function createExportRuntime(options: CreateExportRuntimeOptions): Export
       focusedFrameId: state.focusedFrameId,
       tool: state.tool
     });
-    await runExportWithUi({
+    const result = await runExportWithUi({
       frames,
       filePattern: state.exportSettings.filePattern,
       outputDir: state.exportSettings.savePath || undefined,
+      zipFileName: state.exportSettings.zipFileName,
+      descriptionFileName: buildDescriptionMarkdownFileNameFromImageName(state.image.fileName),
       originalImage: {
         fileName: state.image.fileName,
         dataUrl: state.image.src
@@ -101,6 +105,9 @@ export function createExportRuntime(options: CreateExportRuntimeOptions): Export
         controller.setAnnotations(state.annotations, state.selectedAnnotationId);
       }
     });
+    if (result?.savedPath) {
+      state.lastExportDir = getDirectoryPathFromFilePath(result.savedPath);
+    }
     refresh();
   };
 

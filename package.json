@@ -2,6 +2,7 @@
   "name": "images-play-editor",
   "version": "0.1.0",
   "private": true,
+  "license": "Apache-2.0",
   "type": "module",
   "scripts": {
     "ensure:build-info": "node scripts/ensure-build-info.mjs",

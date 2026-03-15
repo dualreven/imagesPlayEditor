@@ -14,6 +14,7 @@ import {
 const VERSION_ARG_FLAG = "--version";
 const VERSION_ARG_SHORT = "-v";
 const VERSION_PATTERN = /^(\d{2})\.(\d{2})\.(\d{2})$/;
+const TRACKED_MSI_DIR_SEGMENTS = ["build-artifacts", "msi"];
 
 function parseArgs(argv) {
   let versionArg = null;
@@ -195,6 +196,33 @@ async function renameArtifact(bundleMsiDir, versionInfo, gitHash, productName) {
   }
 }
 
+function isMsiFile(entry) {
+  return entry.isFile() && entry.name.toLowerCase().endsWith(".msi");
+}
+
+async function clearTrackedMsiArtifacts(trackedMsiDir) {
+  try {
+    const entries = await fs.readdir(trackedMsiDir, { withFileTypes: true });
+    await Promise.all(
+      entries.filter(isMsiFile).map((entry) => fs.rm(path.join(trackedMsiDir, entry.name), { force: true }))
+    );
+  } catch (error) {
+    if (error && typeof error === "object" && "code" in error && error.code === "ENOENT") {
+      return;
+    }
+    throw error;
+  }
+}
+
+async function publishArtifactToTrackedDir(root, artifactPath) {
+  const trackedMsiDir = path.join(root, ...TRACKED_MSI_DIR_SEGMENTS);
+  await fs.mkdir(trackedMsiDir, { recursive: true });
+  await clearTrackedMsiArtifacts(trackedMsiDir);
+  const trackedArtifactPath = path.join(trackedMsiDir, path.basename(artifactPath));
+  await fs.copyFile(artifactPath, trackedArtifactPath);
+  return trackedArtifactPath;
+}
+
 async function writeVersionState(statePath, versionInfo, gitHash, artifactPath, updateNotes, previousGitHash) {
   const payload = {
     lastDisplayVersion: versionInfo.display,
@@ -247,13 +275,14 @@ async function main() {
   await runTauriBuild(tempConfigPath);
 
   const { targetPath } = await renameArtifact(bundleMsiDir, versionInfo, gitHash, config.productName);
+  const trackedArtifactPath = await publishArtifactToTrackedDir(root, targetPath);
   const nextHistoryEntries = await writeBuildHistory(historyPath, {
     displayVersion: versionInfo.display,
     semverVersion: versionInfo.semver,
     gitHash,
     previousGitHash,
     updateNotes,
-    artifactPath: targetPath,
+    artifactPath: trackedArtifactPath,
     updatedAt
   });
   await writeGeneratedBuildInfo(
@@ -263,14 +292,15 @@ async function main() {
       gitHash,
       previousGitHash,
       updateNotes,
-      artifactPath: targetPath,
+      artifactPath: trackedArtifactPath,
       updatedAt,
       historyEntries: nextHistoryEntries,
       historyFilePath: historyPath
     })
   );
-  await writeVersionState(statePath, versionInfo, gitHash, targetPath, updateNotes, previousGitHash);
-  console.log(`Artifact: ${targetPath}`);
+  await writeVersionState(statePath, versionInfo, gitHash, trackedArtifactPath, updateNotes, previousGitHash);
+  console.log(`Build artifact: ${targetPath}`);
+  console.log(`Tracked artifact: ${trackedArtifactPath}`);
 }
 
 main().catch((error) => {

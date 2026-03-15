@@ -17,6 +17,7 @@ interface CreateAppRefreshRuntimeOptions {
   frameListPanel: HTMLDivElement;
   exportFrameList: HTMLOListElement;
   selectedInfo: HTMLElement;
+  exportOpenDirBtn: HTMLButtonElement;
   toolButtons: HTMLButtonElement[];
   styleControls: StyleControls;
   actionControls: ActionControls;
@@ -44,6 +45,7 @@ export function createAppRefreshRuntime(options: CreateAppRefreshRuntimeOptions)
     frameListPanel,
     exportFrameList,
     selectedInfo,
+    exportOpenDirBtn,
     toolButtons,
     styleControls,
     actionControls,
@@ -69,6 +71,7 @@ export function createAppRefreshRuntime(options: CreateAppRefreshRuntimeOptions)
     refreshUiState({
       state,
       toolButtons,
+      exportOpenDirBtn,
       styleControls,
       actionControls,
       frameFilterControls,

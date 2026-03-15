@@ -4,9 +4,11 @@ export interface BindAppEventsOptions {
   toolButtons: HTMLButtonElement[];
   openExportPanelBtn: HTMLButtonElement;
   exportCloseBtn: HTMLButtonElement;
+  exportOpenDirBtn: HTMLButtonElement;
   settingsBtn: HTMLButtonElement;
   settingTabButtons: HTMLButtonElement[];
   settingCancelBtn: HTMLButtonElement;
+  settingZipName: HTMLInputElement;
   settingNamePattern: HTMLInputElement;
   settingSaveBtn: HTMLButtonElement;
   settingOpenHistoryBtn: HTMLButtonElement;
@@ -30,6 +32,7 @@ export interface BindAppEventsOptions {
   onToolSelect: (tool: DrawingTool) => void;
   onOpenExportDialog: () => void;
   onCloseExportDialog: () => void;
+  onOpenExportDirectory: () => Promise<void> | void;
   onOpenSettings: () => void;
   onCloseSettings: () => void;
   onSettingTabSelect: (tabId: string) => void;
@@ -40,6 +43,7 @@ export interface BindAppEventsOptions {
   onFrameDescSave: () => void;
   onStyleInputChange: () => void;
   onApplyStyle: () => void;
+  onRequestImagePick: (event: MouseEvent) => Promise<void> | void;
   onImageInputChange: (file: File | null, sourcePath: string | null) => Promise<void> | void;
   onAddEmptyFrame: () => void;
   onAddClearBefore: () => void;
@@ -75,6 +79,9 @@ export function bindAppEvents(options: BindAppEventsOptions) {
 
   listen(options.openExportPanelBtn, "click", () => options.onOpenExportDialog());
   listen(options.exportCloseBtn, "click", () => options.onCloseExportDialog());
+  listen(options.exportOpenDirBtn, "click", () => {
+    void options.onOpenExportDirectory();
+  });
   listen(options.settingsBtn, "click", () => options.onOpenSettings());
   options.settingTabButtons.forEach((button) => {
     listen(button, "click", () => {
@@ -84,6 +91,7 @@ export function bindAppEvents(options: BindAppEventsOptions) {
     });
   });
   listen(options.settingCancelBtn, "click", () => options.onCloseSettings());
+  listen(options.settingZipName, "input", () => options.onSettingPatternInput());
   listen(options.settingNamePattern, "input", () => options.onSettingPatternInput());
   listen(options.settingSaveBtn, "click", () => options.onSettingSave());
   listen(options.settingOpenHistoryBtn, "click", () => {
@@ -95,6 +103,9 @@ export function bindAppEvents(options: BindAppEventsOptions) {
     listen(input, "change", () => options.onStyleInputChange());
   });
   listen(options.applyStyleBtn, "click", () => options.onApplyStyle());
+  listen(options.imageInput, "click", (event) => {
+    void options.onRequestImagePick(event as MouseEvent);
+  });
   listen(options.imageInput, "change", () => {
     void options.onImageInputChange(options.imageInput.files?.[0] ?? null, options.imageInput.value || null);
     options.imageInput.value = "";

@@ -1,4 +1,4 @@
-import { CanvasController, getSaveModeText, queryAppDom } from "@modules";
+import { CanvasController, getExportSettingsSummaryText, queryAppDom } from "@modules";
 import { APP_TEMPLATE } from "./app-template";
 import { createExportRuntime } from "./app-export-runtime";
 import { createAppMountContext } from "./app-mount-context";
@@ -28,12 +28,15 @@ export function mountApp(root: HTMLDivElement) {
     frameDescEditor,
     openExportPanelBtn,
     exportDialog,
+    exportOpenDirBtn,
     exportCloseBtn,
     settingsBtn,
     settingsDialog,
     settingTabButtons,
     frameDescInput,
     settingSavePath,
+    settingZipName,
+    settingZipNameTip,
     settingNamePattern,
     settingPatternTip,
     settingPreview,
@@ -153,6 +156,7 @@ export function mountApp(root: HTMLDivElement) {
     frameListPanel,
     exportFrameList,
     selectedInfo,
+    exportOpenDirBtn,
     toolButtons,
     styleControls,
     actionControls,
@@ -175,6 +179,8 @@ export function mountApp(root: HTMLDivElement) {
     settingsDialog,
     settingTabButtons,
     settingSavePath,
+    settingZipName,
+    settingZipNameTip,
     settingNamePattern,
     settingPatternTip,
     settingPreview,
@@ -194,6 +200,7 @@ export function mountApp(root: HTMLDivElement) {
     closeFrameDescEditor,
     collectStyleFromInputs,
     getSelectedAnnotation: () => refreshRuntime.getSelectedAnnotation(),
+    loadImageSource: (imageSource) => controller.loadImageSource(imageSource),
     toggleClearBeforeFrame,
     removeActions,
     loadImage: (file, sourcePath) => controller.loadImage(file, sanitizeFileInputPath(sourcePath, file.name)),
@@ -205,9 +212,11 @@ export function mountApp(root: HTMLDivElement) {
     toolButtons,
     openExportPanelBtn,
     exportCloseBtn,
+    exportOpenDirBtn,
     settingsBtn,
     settingTabButtons,
     settingCancelBtn,
+    settingZipName,
     settingNamePattern,
     settingSaveBtn,
     settingOpenHistoryBtn,
@@ -232,7 +241,7 @@ export function mountApp(root: HTMLDivElement) {
   });
 
   refresh();
-  setExportFeedback(`${getSaveModeText(state.exportSettings)} | 命名格式: ${state.exportSettings.filePattern}`);
+  setExportFeedback(getExportSettingsSummaryText(state.exportSettings));
   window.addEventListener("beforeunload", () => {
     unbindAppEvents();
     timelineSortableSystem.destroy();

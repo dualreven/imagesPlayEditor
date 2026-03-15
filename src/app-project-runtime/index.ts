@@ -59,6 +59,7 @@ export function createProjectRuntime(options: CreateProjectRuntimeOptions) {
       state.selectedActionId = snapshot.selectedActionId;
       state.selectedAnnotationId = snapshot.selectedAnnotationId;
       state.focusedFrameId = snapshot.focusedFrameId;
+      state.lastExportDir = null;
     },
     exportProject: async () => {
       const snapshot = buildProjectSnapshot({

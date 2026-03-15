@@ -4,10 +4,67 @@ use std::process::Command;
 
 use base64::engine::general_purpose::STANDARD;
 use base64::Engine;
+use rfd::FileDialog;
+use serde::Serialize;
+
+#[derive(Serialize)]
+pub struct PickedImageFilePayload {
+    file_path: String,
+    file_name: String,
+    data_url: String,
+}
+
+fn resolve_image_mime(path: &Path) -> Result<&'static str, String> {
+    let ext = path
+        .extension()
+        .and_then(|value| value.to_str())
+        .map(|value| value.to_ascii_lowercase())
+        .ok_or_else(|| format!("missing file extension: {}", path.to_string_lossy()))?;
+
+    match ext.as_str() {
+        "png" => Ok("image/png"),
+        "jpg" | "jpeg" => Ok("image/jpeg"),
+        "bmp" => Ok("image/bmp"),
+        "gif" => Ok("image/gif"),
+        "webp" => Ok("image/webp"),
+        "svg" => Ok("image/svg+xml"),
+        _ => Err(format!("unsupported image format: .{ext}")),
+    }
+}
 
 #[tauri::command]
 pub fn ping() -> &'static str {
     "pong"
+}
+
+#[tauri::command]
+pub fn pick_image_file_base64() -> Result<Option<PickedImageFilePayload>, String> {
+    let file_path = FileDialog::new()
+        .add_filter(
+            "Images",
+            &["png", "jpg", "jpeg", "bmp", "gif", "webp", "svg"],
+        )
+        .pick_file();
+
+    let Some(path) = file_path else {
+        return Ok(None);
+    };
+
+    let file_name = path
+        .file_name()
+        .and_then(|value| value.to_str())
+        .map(|value| value.trim().to_string())
+        .filter(|value| !value.is_empty())
+        .ok_or_else(|| format!("invalid file name: {}", path.to_string_lossy()))?;
+    let mime = resolve_image_mime(&path)?;
+    let bytes = fs::read(&path).map_err(|error| format!("read file failed: {error}"))?;
+    let data_url = format!("data:{mime};base64,{}", STANDARD.encode(bytes));
+
+    Ok(Some(PickedImageFilePayload {
+        file_path: path.to_string_lossy().to_string(),
+        file_name,
+        data_url,
+    }))
 }
 
 #[tauri::command]

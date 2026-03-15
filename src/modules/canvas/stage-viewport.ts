@@ -40,7 +40,7 @@ export function applyDisplayScale(stage: Konva.Stage, imageMeta: EditorImage, sc
 
 export function computeAutoFitScale(container: HTMLDivElement, imageMeta: EditorImage) {
   const { width: containerWidth, height: containerHeight } = getViewportContentSize(container);
-  const fitScale = Math.min(containerWidth / imageMeta.width, containerHeight / imageMeta.height, 1);
+  const fitScale = Math.min(containerWidth / imageMeta.width, containerHeight / imageMeta.height);
   return Number.isFinite(fitScale) && fitScale > 0 ? fitScale : 1;
 }
 

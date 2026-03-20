@@ -30,6 +30,10 @@ function runGit(args, cwd) {
   });
 }
 
+function shouldSkipCleanWorktreeCheck() {
+  return process.env.ALLOW_DIRTY_WORKTREE === "1";
+}
+
 export function assertCleanGitWorktree(cwd) {
   let output = "";
   try {
@@ -38,8 +42,8 @@ export function assertCleanGitWorktree(cwd) {
     throw new Error(`Failed to inspect git worktree: ${error instanceof Error ? error.message : error}`);
   }
 
-  if (output) {
-    throw new Error("Git worktree is dirty. Please commit or stash all changes before build.");
+  if (output && !shouldSkipCleanWorktreeCheck()) {
+    throw new Error("Git worktree is dirty. Please commit or stash all changes before build, or set ALLOW_DIRTY_WORKTREE=1.");
   }
 }
 

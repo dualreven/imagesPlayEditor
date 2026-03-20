@@ -5,6 +5,7 @@ export interface BindAppEventsOptions {
   openExportPanelBtn: HTMLButtonElement;
   exportCloseBtn: HTMLButtonElement;
   exportOpenDirBtn: HTMLButtonElement;
+  refreshCanvasBtn: HTMLButtonElement;
   settingsBtn: HTMLButtonElement;
   settingTabButtons: HTMLButtonElement[];
   settingCancelBtn: HTMLButtonElement;
@@ -20,6 +21,7 @@ export interface BindAppEventsOptions {
   styleFont: HTMLInputElement;
   applyStyleBtn: HTMLButtonElement;
   imageInput: HTMLInputElement;
+  stageContainer: HTMLDivElement;
   addEmptyFrameBtn: HTMLButtonElement;
   addClearBtn: HTMLButtonElement;
   timelinePanel: HTMLElement;
@@ -30,6 +32,7 @@ export interface BindAppEventsOptions {
   exportProjectBtn: HTMLButtonElement;
   exportBtn: HTMLButtonElement;
   onToolSelect: (tool: DrawingTool) => void;
+  onRefreshCanvas: () => void;
   onOpenExportDialog: () => void;
   onCloseExportDialog: () => void;
   onOpenExportDirectory: () => Promise<void> | void;
@@ -53,6 +56,8 @@ export interface BindAppEventsOptions {
   onDeleteAction: () => void;
   onProjectImport: (file: File | null) => Promise<void> | void;
   onProjectExport: () => Promise<void> | void;
+  onCanvasDragOver: (event: DragEvent) => void;
+  onCanvasDrop: (event: DragEvent) => Promise<void> | void;
   onExport: () => Promise<void> | void;
 }
 
@@ -82,6 +87,7 @@ export function bindAppEvents(options: BindAppEventsOptions) {
   listen(options.exportOpenDirBtn, "click", () => {
     void options.onOpenExportDirectory();
   });
+  listen(options.refreshCanvasBtn, "click", () => options.onRefreshCanvas());
   listen(options.settingsBtn, "click", () => options.onOpenSettings());
   options.settingTabButtons.forEach((button) => {
     listen(button, "click", () => {
@@ -151,6 +157,12 @@ export function bindAppEvents(options: BindAppEventsOptions) {
   });
   listen(options.exportBtn, "click", () => {
     void options.onExport();
+  });
+  listen(options.stageContainer, "dragover", (event) => {
+    options.onCanvasDragOver(event as DragEvent);
+  });
+  listen(options.stageContainer, "drop", (event) => {
+    void options.onCanvasDrop(event as DragEvent);
   });
 
   return () => {

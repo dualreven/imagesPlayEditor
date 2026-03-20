@@ -13,6 +13,7 @@ export interface AppDomRefs {
   exportDialog: HTMLDialogElement;
   exportOpenDirBtn: HTMLButtonElement;
   exportCloseBtn: HTMLButtonElement;
+  refreshCanvasBtn: HTMLButtonElement;
   settingsBtn: HTMLButtonElement;
   settingsDialog: HTMLDialogElement;
   settingTabButtons: HTMLButtonElement[];
@@ -67,6 +68,7 @@ export function queryAppDom(root: HTMLDivElement): AppDomRefs {
     exportDialog: requiredElement(root.querySelector<HTMLDialogElement>("#export-dialog"), "#export-dialog"),
     exportOpenDirBtn: requiredElement(root.querySelector<HTMLButtonElement>("#export-open-dir-btn"), "#export-open-dir-btn"),
     exportCloseBtn: requiredElement(root.querySelector<HTMLButtonElement>("#export-close-btn"), "#export-close-btn"),
+    refreshCanvasBtn: requiredElement(root.querySelector<HTMLButtonElement>("#refresh-canvas-btn"), "#refresh-canvas-btn"),
     settingsBtn: requiredElement(root.querySelector<HTMLButtonElement>("#settings-btn"), "#settings-btn"),
     settingsDialog: requiredElement(root.querySelector<HTMLDialogElement>("#settings-dialog"), "#settings-dialog"),
     settingTabButtons: [...root.querySelectorAll<HTMLButtonElement>("[data-settings-tab]")],

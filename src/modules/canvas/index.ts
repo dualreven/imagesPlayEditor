@@ -2,7 +2,7 @@ import Konva from "konva";
 import type { Annotation, AnnotationStyle, DrawingTool, EditorImage, Point } from "../models";
 import { type LastTextClick, renderAnnotationLayer } from "./annotation-layer-render";
 import { DrawingSession } from "./drawing-session";
-import { loadImage, readFileAsDataUrl } from "./geometry";
+import { isSupportedImageFile, loadImage, readFileAsDataUrl } from "./geometry";
 import { canEditSelectedAnnotation, isAnnotationSelectedForEditing } from "./interaction-policy";
 import { bindCanvasPointerEvents } from "./pointer-events";
 import {
@@ -156,6 +156,21 @@ export class CanvasController {
     this.stage.position({ x: 0, y: 0 });
     applyViewportStageSize(this.stage, this.container);
     this.stage.draw();
+  }
+  refreshCanvas() {
+    this.textInputOverlay.finish(true);
+    this.drawingSession.clear();
+    this.lastTextClick = null;
+    this.annotationLayer.draw();
+    this.drawingLayer.draw();
+    this.stage.draw();
+  }
+  getDropImageFile(dataTransfer: DataTransfer | null) {
+    if (!dataTransfer) {
+      return null;
+    }
+    const files = [...dataTransfer.files];
+    return files.find((file) => isSupportedImageFile(file)) ?? null;
   }
   toDataUrl() {
     return toDataUrlAtOriginalScale(this.stage, this.imageMeta, this.displayScale, (scale) =>

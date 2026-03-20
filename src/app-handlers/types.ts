@@ -54,6 +54,8 @@ export interface CreateAppEventHandlersOptions {
   runExport: () => Promise<void>;
   exportProject: () => Promise<void>;
   importProject: (file: File) => Promise<void>;
+  refreshCanvas: () => void;
+  getDropImageFile: (dataTransfer: DataTransfer | null) => File | null;
   timelineIgnoreSelector?: string;
 }
 
@@ -83,5 +85,8 @@ export type EventCallbacks = Pick<
   | "onDeleteAction"
   | "onProjectImport"
   | "onProjectExport"
+  | "onRefreshCanvas"
+  | "onCanvasDragOver"
+  | "onCanvasDrop"
   | "onExport"
 >;

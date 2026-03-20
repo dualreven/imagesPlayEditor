@@ -50,6 +50,14 @@ export const APP_TEMPLATE = `
             aria-label="导出步骤图 ZIP"
           >${renderAntIcon("export")}</button>
           <button
+            id="refresh-canvas-btn"
+            type="button"
+            class="toolbar-icon-button"
+            data-tooltip="刷新画布"
+            title="刷新画布"
+            aria-label="刷新画布"
+          >${renderAntIcon("refresh")}</button>
+          <button
             id="settings-btn"
             type="button"
             class="toolbar-settings-btn toolbar-icon-button"
@@ -74,7 +82,7 @@ export const APP_TEMPLATE = `
         </div>
       </div>
       <div id="canvas-shell" class="canvas-shell">
-        <div id="stage-container" class="stage-container"></div>
+        <div id="stage-container" class="stage-container" data-drop-hint="拖拽图片到此处导入"></div>
       </div>
     </section>
     <aside class="side-panel">

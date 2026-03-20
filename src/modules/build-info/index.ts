@@ -25,6 +25,7 @@ export interface AppBuildHistoryEntry {
 }
 
 export function getAppBuildInfo(): AppBuildInfo {
+  const historyEntries = BUILD_INFO.historyEntries as AppBuildHistoryEntry[];
   return {
     displayVersion: BUILD_INFO.displayVersion,
     semverVersion: BUILD_INFO.semverVersion,
@@ -34,7 +35,7 @@ export function getAppBuildInfo(): AppBuildInfo {
     artifactPath: BUILD_INFO.artifactPath,
     updatedAt: BUILD_INFO.updatedAt,
     historyFilePath: BUILD_INFO.historyFilePath,
-    historyEntries: BUILD_INFO.historyEntries.map((entry) => ({
+    historyEntries: historyEntries.map((entry) => ({
       displayVersion: entry.displayVersion,
       semverVersion: entry.semverVersion,
       gitHash: entry.gitHash,

@@ -1,5 +1,11 @@
 import type { Point } from "../models";
 
+const IMAGE_FILE_PATTERN = /^image\//i;
+
+export function isSupportedImageFile(file: File) {
+  return IMAGE_FILE_PATTERN.test(file.type);
+}
+
 export function readFileAsDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();

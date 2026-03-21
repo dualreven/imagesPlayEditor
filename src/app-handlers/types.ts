@@ -44,7 +44,10 @@ export interface CreateAppEventHandlersOptions {
   }>;
   toggleClearBeforeFrame: (frameId: string) => boolean | null;
   removeActions: (actionIds: string[]) => void;
-  loadImage: (file: File, sourcePath: string | null) => Promise<{
+  loadImage: (
+    file: File,
+    sourcePath: string | null
+  ) => Promise<{
     src: string;
     width: number;
     height: number;
@@ -56,6 +59,7 @@ export interface CreateAppEventHandlersOptions {
   importProject: (file: File) => Promise<void>;
   refreshCanvas: () => void;
   getDropImageFile: (dataTransfer: DataTransfer | null) => File | null;
+  queueFramePanelScroll: (frameId: string) => void;
   timelineIgnoreSelector?: string;
 }
 

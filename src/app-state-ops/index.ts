@@ -1,4 +1,5 @@
 import {
+  buildFrame,
   clearActionSelection,
   createAnnotationStep,
   createSystemStep,
@@ -47,12 +48,12 @@ export function duplicateFrameById(state: AppState, frameId: string) {
     state.actions.set(duplicatedAction.id, duplicatedAction);
     return duplicatedAction.id;
   });
-  const duplicatedFrame = {
-    ...sourceFrame,
+  const duplicatedFrame = buildFrame({
     id: `frame_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
     actionIds: duplicatedActionIds,
+    description: sourceFrame.description,
     createdAt: Date.now()
-  };
+  });
   const nextFrames = [...state.frames];
   nextFrames.splice(sourceIndex + 1, 0, duplicatedFrame);
   state.frames = nextFrames;
@@ -98,7 +99,9 @@ export function deleteFrameById(state: AppState, frameId: string, options: Delet
   if (state.focusedFrameId === frameId) {
     state.focusedFrameId = nextFrameId ?? previousFrameId;
   }
-  const selectedActionWillBeRemoved = state.selectedActionId ? removedActionIds.includes(state.selectedActionId) : false;
+  const selectedActionWillBeRemoved = state.selectedActionId
+    ? removedActionIds.includes(state.selectedActionId)
+    : false;
   removeActionsFromState(state, removedActionIds);
   if (state.frames.length === 0) {
     clearSelection(state, { resetFocusedView: true });

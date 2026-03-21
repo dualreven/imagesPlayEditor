@@ -1,11 +1,17 @@
 import { createStepId } from "../annotation";
 import type { Frame, TimelineAction, TimelineStep } from "../models";
+import { buildFrame } from "./frame-factory";
 export * from "./new-frame-dropzone";
 export * from "./sortable-system";
 export * from "./sortable-types";
+export * from "./frame-factory";
 
-function createFrameId() { return `frame_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`; }
-function clampIndex(index: number, max: number) { return Math.min(Math.max(0, index), max); }
+function createFrameId() {
+  return `frame_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+function clampIndex(index: number, max: number) {
+  return Math.min(Math.max(0, index), max);
+}
 
 export function createAnnotationStep(annotationId: string): TimelineStep {
   return { id: createStepId(), type: "annotation", annotationId };
@@ -16,14 +22,23 @@ export function createSystemStep(action: TimelineAction): TimelineStep {
 }
 
 export function createFrame(actionIds: string[] = [], description = ""): Frame {
-  return { id: createFrameId(), actionIds: [...actionIds], description, exclusive: false, createdAt: Date.now() };
+  return buildFrame({
+    id: createFrameId(),
+    actionIds,
+    description,
+    createdAt: Date.now()
+  });
 }
 
 export function appendActionAsNewFrame(frames: Frame[], actionId: string): Frame[] {
   return [...frames, createFrame([actionId])];
 }
 
-export function updateFrameDescription(frames: Frame[], frameId: string, description: string): Frame[] {
+export function updateFrameDescription(
+  frames: Frame[],
+  frameId: string,
+  description: string
+): Frame[] {
   return frames.map((frame) => (frame.id === frameId ? { ...frame, description } : frame));
 }
 
@@ -35,10 +50,18 @@ export function findFrameIdByActionId(frames: Frame[], actionId: string): string
 }
 
 export function removeActionFromFrames(frames: Frame[], actionId: string): Frame[] {
-  return frames.map((frame) => ({ ...frame, actionIds: frame.actionIds.filter((id) => id !== actionId) }));
+  return frames.map((frame) => ({
+    ...frame,
+    actionIds: frame.actionIds.filter((id) => id !== actionId)
+  }));
 }
 
-export function moveActionToFrame(frames: Frame[], actionId: string, targetFrameId: string, insertIndex: number): Frame[] {
+export function moveActionToFrame(
+  frames: Frame[],
+  actionId: string,
+  targetFrameId: string,
+  insertIndex: number
+): Frame[] {
   const sourceFrameIndex = frames.findIndex((frame) => frame.actionIds.includes(actionId));
   const targetFrameIndex = frames.findIndex((frame) => frame.id === targetFrameId);
   if (sourceFrameIndex < 0 || targetFrameIndex < 0) return [...frames];
@@ -68,7 +91,10 @@ export function moveActionToNewFrame(
 
 export function removeFrameAndCollectActionIds(frames: Frame[], frameId: string) {
   const frame = frames.find((item) => item.id === frameId);
-  return { frames: frames.filter((item) => item.id !== frameId), removedActionIds: frame ? [...frame.actionIds] : [] };
+  return {
+    frames: frames.filter((item) => item.id !== frameId),
+    removedActionIds: frame ? [...frame.actionIds] : []
+  };
 }
 
 export function moveFrameToIndex(frames: Frame[], frameId: string, targetIndex: number): Frame[] {

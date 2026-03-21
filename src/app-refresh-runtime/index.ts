@@ -34,11 +34,14 @@ interface CreateAppRefreshRuntimeOptions {
 
 export interface AppRefreshRuntime {
   refresh: () => void;
+  queueFramePanelScroll: (frameId: string) => void;
   syncStyleInputsFromSelected: () => void;
   getSelectedAnnotation: () => Annotation | null;
 }
 
-export function createAppRefreshRuntime(options: CreateAppRefreshRuntimeOptions): AppRefreshRuntime {
+export function createAppRefreshRuntime(
+  options: CreateAppRefreshRuntimeOptions
+): AppRefreshRuntime {
   const {
     state,
     controller,
@@ -61,10 +64,15 @@ export function createAppRefreshRuntime(options: CreateAppRefreshRuntimeOptions)
   } = options;
 
   const getSelectedAnnotation = () =>
-    state.selectedAnnotationId ? state.annotations.get(state.selectedAnnotationId) ?? null : null;
+    state.selectedAnnotationId ? (state.annotations.get(state.selectedAnnotationId) ?? null) : null;
+  let pendingScrollFrameId: string | null = null;
 
   const syncStyleInputsFromSelected = () => {
     syncStyleInputsFromAnnotation(getSelectedAnnotation(), styleControls);
+  };
+
+  const queueFramePanelScroll = (frameId: string) => {
+    pendingScrollFrameId = frameId;
   };
 
   const refresh = () => {
@@ -81,6 +89,8 @@ export function createAppRefreshRuntime(options: CreateAppRefreshRuntimeOptions)
     renderFramePanelRefresh({
       state,
       container: frameListPanel,
+      scrollToFrameId: pendingScrollFrameId,
+      queueFramePanelScroll,
       setStatus,
       openFrameDescEditor,
       duplicateFrameById,
@@ -90,6 +100,7 @@ export function createAppRefreshRuntime(options: CreateAppRefreshRuntimeOptions)
       syncStyleInputsFromSelected,
       refresh
     });
+    pendingScrollFrameId = null;
     timelineSortableSystem.bind();
 
     refreshCanvasAndExport({
@@ -103,6 +114,7 @@ export function createAppRefreshRuntime(options: CreateAppRefreshRuntimeOptions)
 
   return {
     refresh,
+    queueFramePanelScroll,
     syncStyleInputsFromSelected,
     getSelectedAnnotation
   };

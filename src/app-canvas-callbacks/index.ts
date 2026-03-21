@@ -17,18 +17,25 @@ interface CanvasCallbacks {
 
 type AppCanvasState = Pick<
   AppState,
-  "annotations" | "annotationCounters" | "actions" | "frames" | "selectedFrameId" | "selectedActionId" | "selectedAnnotationId"
+  | "annotations"
+  | "annotationCounters"
+  | "actions"
+  | "frames"
+  | "selectedFrameId"
+  | "selectedActionId"
+  | "selectedAnnotationId"
 >;
 
 interface CreateCanvasCallbacksOptions {
   state: AppCanvasState;
   refresh: () => void;
+  queueFramePanelScroll: (frameId: string) => void;
   setStatus: (message: string) => void;
   syncStyleInputsFromSelected: () => void;
 }
 
 export function createCanvasCallbacks(options: CreateCanvasCallbacksOptions): CanvasCallbacks {
-  const { state, refresh, setStatus, syncStyleInputsFromSelected } = options;
+  const { state, refresh, queueFramePanelScroll, setStatus, syncStyleInputsFromSelected } = options;
   return {
     onAnnotationCreated: (annotation) => {
       const nextSequence = state.annotationCounters[annotation.kind] + 1;
@@ -37,11 +44,17 @@ export function createCanvasCallbacks(options: CreateCanvasCallbacksOptions): Ca
       state.annotations.set(identifiedAnnotation.id, identifiedAnnotation);
       const action = createAnnotationStep(identifiedAnnotation.id);
       state.actions.set(action.id, action);
-      const selectedIndex = state.selectedFrameId ? state.frames.findIndex((frame) => frame.id === state.selectedFrameId) : -1;
+      const selectedIndex = state.selectedFrameId
+        ? state.frames.findIndex((frame) => frame.id === state.selectedFrameId)
+        : -1;
       if (selectedIndex >= 0) {
-        state.frames = state.frames.map((frame, index) => (index === selectedIndex ? { ...frame, actionIds: [...frame.actionIds, action.id] } : frame));
+        state.frames = state.frames.map((frame, index) =>
+          index === selectedIndex ? { ...frame, actionIds: [...frame.actionIds, action.id] } : frame
+        );
       } else {
-        state.frames = [...state.frames, createFrame([action.id])];
+        const newFrame = createFrame([action.id]);
+        state.frames = [...state.frames, newFrame];
+        queueFramePanelScroll(newFrame.id);
       }
       clearActionSelection(state);
       refresh();

@@ -3,21 +3,28 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import {
   assertCleanGitWorktree,
+  buildAutoCommitMessage,
   buildBuildInfoPayload,
+  createGitCommit,
   getGitShortHash,
   getGitUpdateNotes,
+  listDirtyGitPaths,
+  pushCurrentGitBranch,
   readBuildHistory,
+  stageGitPaths,
   writeBuildHistory,
   writeGeneratedBuildInfo
 } from "./build-info-utils.mjs";
 
 const VERSION_ARG_FLAG = "--version";
 const VERSION_ARG_SHORT = "-v";
+const COMMIT_MESSAGE_ARG_FLAG = "--commit-message";
 const VERSION_PATTERN = /^(\d{2})\.(\d{2})\.(\d{2})$/;
-const TRACKED_MSI_DIR_SEGMENTS = ["build-artifacts", "msi"];
 
 function parseArgs(argv) {
   let versionArg = null;
+  let commitMessageArg = null;
+
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (arg === VERSION_ARG_FLAG || arg === VERSION_ARG_SHORT) {
@@ -33,9 +40,23 @@ function parseArgs(argv) {
       versionArg = arg.slice(`${VERSION_ARG_FLAG}=`.length);
       continue;
     }
+    if (arg === COMMIT_MESSAGE_ARG_FLAG) {
+      const next = argv[index + 1];
+      if (!next) {
+        throw new Error('Missing commit message value. Use --commit-message "message"');
+      }
+      commitMessageArg = next;
+      index += 1;
+      continue;
+    }
+    if (arg.startsWith(`${COMMIT_MESSAGE_ARG_FLAG}=`)) {
+      commitMessageArg = arg.slice(`${COMMIT_MESSAGE_ARG_FLAG}=`.length);
+      continue;
+    }
     throw new Error(`Unknown argument: ${arg}`);
   }
-  return { versionArg };
+
+  return { versionArg, commitMessageArg };
 }
 
 function parseDisplayVersion(version) {
@@ -102,11 +123,24 @@ function resolveDisplayVersion(versionArg, previousState) {
   }
 
   if (seq > 99) {
-    throw new Error(`Monthly sequence exceeded 99 for ${year}.${month}. Please pass --version manually.`);
+    throw new Error(
+      `Monthly sequence exceeded 99 for ${year}.${month}. Please pass --version manually.`
+    );
   }
 
-  const autoVersion = `${year}.${month}.${String(seq).padStart(2, "0")}`;
-  return parseDisplayVersion(autoVersion);
+  return parseDisplayVersion(`${year}.${month}.${String(seq).padStart(2, "0")}`);
+}
+
+function resolveAutoCommitMessage(versionInfo, commitMessageArg) {
+  if (commitMessageArg == null) {
+    return buildAutoCommitMessage(versionInfo.display);
+  }
+
+  const title = commitMessageArg.trim();
+  if (!title) {
+    throw new Error("Commit message must not be empty.");
+  }
+  return { title, body: "" };
 }
 
 async function writeBuildConfig(sourceConfigPath, tempConfigPath, semver) {
@@ -115,6 +149,27 @@ async function writeBuildConfig(sourceConfigPath, tempConfigPath, semver) {
   config.version = semver;
   await fs.writeFile(tempConfigPath, `${JSON.stringify(config, null, 2)}\n`, "utf8");
   return config;
+}
+
+function runNpmScript(scriptName) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(`npm run ${scriptName}`, {
+      stdio: "inherit",
+      shell: true
+    });
+
+    child.on("exit", (code, signal) => {
+      if (signal) {
+        reject(new Error(`npm run ${scriptName} terminated by signal ${signal}`));
+        return;
+      }
+      if (code !== 0) {
+        reject(new Error(`npm run ${scriptName} failed with exit code ${code}`));
+        return;
+      }
+      resolve();
+    });
+  });
 }
 
 function runTauriBuild(tempConfigPath) {
@@ -127,6 +182,7 @@ function runTauriBuild(tempConfigPath) {
       stdio: "inherit",
       shell: true
     });
+
     child.on("exit", (code, signal) => {
       if (signal) {
         reject(new Error(`tauri build terminated by signal ${signal}`));
@@ -141,16 +197,34 @@ function runTauriBuild(tempConfigPath) {
   });
 }
 
+function autoCommitPendingChanges(root, versionInfo, commitMessageArg) {
+  const dirtyPaths = listDirtyGitPaths(root);
+  if (dirtyPaths.length === 0) {
+    return null;
+  }
+
+  const message = resolveAutoCommitMessage(versionInfo, commitMessageArg);
+  stageGitPaths(root, dirtyPaths);
+  createGitCommit(root, message);
+
+  return {
+    dirtyPaths,
+    message,
+    gitHash: getGitShortHash(root)
+  };
+}
+
 async function findLatestMsi(bundleMsiDir) {
   const entries = await fs.readdir(bundleMsiDir, { withFileTypes: true });
-  const msiFiles = entries.filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith(".msi"));
+  const msiFiles = entries.filter(
+    (entry) => entry.isFile() && entry.name.toLowerCase().endsWith(".msi")
+  );
   if (msiFiles.length === 0) {
     throw new Error(`No MSI file found in ${bundleMsiDir}`);
   }
 
   const stats = await Promise.all(
     msiFiles.map(async (entry) => ({
-      name: entry.name,
       fullPath: path.join(bundleMsiDir, entry.name),
       stat: await fs.stat(path.join(bundleMsiDir, entry.name))
     }))
@@ -177,7 +251,13 @@ function buildArtifactName(originalFileName, semver, displayVersion, gitHash, pr
 async function renameArtifact(bundleMsiDir, versionInfo, gitHash, productName) {
   const latestMsiPath = await findLatestMsi(bundleMsiDir);
   const originalName = path.basename(latestMsiPath);
-  const renamed = buildArtifactName(originalName, versionInfo.semver, versionInfo.display, gitHash, productName);
+  const renamed = buildArtifactName(
+    originalName,
+    versionInfo.semver,
+    versionInfo.display,
+    gitHash,
+    productName
+  );
   const targetPath = path.join(bundleMsiDir, renamed);
 
   if (targetPath === latestMsiPath) {
@@ -196,34 +276,14 @@ async function renameArtifact(bundleMsiDir, versionInfo, gitHash, productName) {
   }
 }
 
-function isMsiFile(entry) {
-  return entry.isFile() && entry.name.toLowerCase().endsWith(".msi");
-}
-
-async function clearTrackedMsiArtifacts(trackedMsiDir) {
-  try {
-    const entries = await fs.readdir(trackedMsiDir, { withFileTypes: true });
-    await Promise.all(
-      entries.filter(isMsiFile).map((entry) => fs.rm(path.join(trackedMsiDir, entry.name), { force: true }))
-    );
-  } catch (error) {
-    if (error && typeof error === "object" && "code" in error && error.code === "ENOENT") {
-      return;
-    }
-    throw error;
-  }
-}
-
-async function publishArtifactToTrackedDir(root, artifactPath) {
-  const trackedMsiDir = path.join(root, ...TRACKED_MSI_DIR_SEGMENTS);
-  await fs.mkdir(trackedMsiDir, { recursive: true });
-  await clearTrackedMsiArtifacts(trackedMsiDir);
-  const trackedArtifactPath = path.join(trackedMsiDir, path.basename(artifactPath));
-  await fs.copyFile(artifactPath, trackedArtifactPath);
-  return trackedArtifactPath;
-}
-
-async function writeVersionState(statePath, versionInfo, gitHash, artifactPath, updateNotes, previousGitHash) {
+async function writeVersionState(
+  statePath,
+  versionInfo,
+  gitHash,
+  artifactPath,
+  updateNotes,
+  previousGitHash
+) {
   const payload = {
     lastDisplayVersion: versionInfo.display,
     lastSemverVersion: versionInfo.semver,
@@ -233,13 +293,13 @@ async function writeVersionState(statePath, versionInfo, gitHash, artifactPath, 
     lastArtifactPath: artifactPath,
     updatedAt: new Date().toISOString()
   };
+
   await fs.mkdir(path.dirname(statePath), { recursive: true });
   await fs.writeFile(statePath, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
 }
 
 async function main() {
   const root = process.cwd();
-  assertCleanGitWorktree(root);
   const args = parseArgs(process.argv.slice(2));
   const statePath = path.join(root, ".ai-temp", "memory-bank", "build-version-state.json");
   const historyPath = path.join(root, ".ai-temp", "memory-bank", "build-history.json");
@@ -249,6 +309,16 @@ async function main() {
 
   const previousState = await readVersionState(statePath);
   const versionInfo = resolveDisplayVersion(args.versionArg, previousState);
+
+  await runNpmScript("lint");
+
+  const autoCommit = autoCommitPendingChanges(root, versionInfo, args.commitMessageArg);
+  if (autoCommit) {
+    console.log(`Auto commit: ${autoCommit.gitHash} ${autoCommit.message.title}`);
+  }
+
+  assertCleanGitWorktree(root);
+
   const gitHash = getGitShortHash(root);
   const previousGitHash = previousState?.lastGitHash ?? null;
   const updateNotes = getGitUpdateNotes(root, previousGitHash);
@@ -269,22 +339,28 @@ async function main() {
       historyFilePath: historyPath
     })
   );
+
   console.log(`Build version: ${versionInfo.display} (semver ${versionInfo.semver})`);
   console.log(`Git revision: ${gitHash}`);
 
   await runTauriBuild(tempConfigPath);
 
-  const { targetPath } = await renameArtifact(bundleMsiDir, versionInfo, gitHash, config.productName);
-  const trackedArtifactPath = await publishArtifactToTrackedDir(root, targetPath);
+  const { targetPath } = await renameArtifact(
+    bundleMsiDir,
+    versionInfo,
+    gitHash,
+    config.productName
+  );
   const nextHistoryEntries = await writeBuildHistory(historyPath, {
     displayVersion: versionInfo.display,
     semverVersion: versionInfo.semver,
     gitHash,
     previousGitHash,
     updateNotes,
-    artifactPath: trackedArtifactPath,
+    artifactPath: targetPath,
     updatedAt
   });
+
   await writeGeneratedBuildInfo(
     root,
     buildBuildInfoPayload({
@@ -292,15 +368,24 @@ async function main() {
       gitHash,
       previousGitHash,
       updateNotes,
-      artifactPath: trackedArtifactPath,
+      artifactPath: targetPath,
       updatedAt,
       historyEntries: nextHistoryEntries,
       historyFilePath: historyPath
     })
   );
-  await writeVersionState(statePath, versionInfo, gitHash, trackedArtifactPath, updateNotes, previousGitHash);
+  await writeVersionState(
+    statePath,
+    versionInfo,
+    gitHash,
+    targetPath,
+    updateNotes,
+    previousGitHash
+  );
+
+  const pushResult = pushCurrentGitBranch(root);
   console.log(`Build artifact: ${targetPath}`);
-  console.log(`Tracked artifact: ${trackedArtifactPath}`);
+  console.log(`Git push: ${pushResult.pushArgs.join(" ")}`);
 }
 
 main().catch((error) => {

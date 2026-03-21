@@ -1,6 +1,11 @@
 import { getAppBuildInfo, openBuildHistoryFile } from "../build-info";
 import { isTauriRuntime } from "../settings";
-import { buildPreviewNames, validateFilePattern, validateZipFileName, type ExportSettings } from "../settings";
+import {
+  buildPreviewNames,
+  validateFilePattern,
+  validateZipFileName,
+  type ExportSettings
+} from "../settings";
 
 interface SettingsPreviewRefs {
   zipNameInput: HTMLInputElement;
@@ -24,7 +29,16 @@ interface SettingsDialogRefs extends SettingsPreviewRefs {
   openHistoryBtn: HTMLButtonElement;
 }
 
-function activateSettingsTab(refs: Pick<SettingsDialogRefs, "dialog" | "tabButtons" | "saveBtn">, tabId: string) {
+function appendEmptyListItem(list: HTMLOListElement, text: string) {
+  const item = document.createElement("li");
+  item.textContent = text;
+  list.append(item);
+}
+
+function activateSettingsTab(
+  refs: Pick<SettingsDialogRefs, "dialog" | "tabButtons" | "saveBtn">,
+  tabId: string
+) {
   refs.tabButtons.forEach((button) => {
     const active = button.dataset.settingsTab === tabId;
     button.classList.toggle("is-active", active);
@@ -53,27 +67,37 @@ function renderBuildInfo(
   refs.versionLineDetail.textContent = `Git：${buildInfo.gitHash} | Semver：${buildInfo.semverVersion}`;
   refs.versionLineTime.textContent = `生成时间：${buildInfo.updatedAt}`;
   refs.updateList.innerHTML = "";
-  buildInfo.updateNotes.forEach((note) => {
-    const item = document.createElement("li");
-    item.textContent = note;
-    refs.updateList.append(item);
-  });
+  if (buildInfo.updateNotes.length === 0) {
+    appendEmptyListItem(refs.updateList, "暂无更新信息");
+  } else {
+    buildInfo.updateNotes.forEach((note) => {
+      const item = document.createElement("li");
+      item.textContent = note;
+      refs.updateList.append(item);
+    });
+  }
   refs.historyList.innerHTML = "";
-  buildInfo.historyEntries.forEach((entry) => {
-    const item = document.createElement("li");
-    item.className = "setting-history-item";
-    const headline = document.createElement("p");
-    headline.className = "setting-history-head";
-    headline.textContent = `${entry.displayVersion} | git ${entry.gitHash} | ${entry.updatedAt}`;
-    const notes = document.createElement("p");
-    notes.className = "setting-history-notes";
-    notes.textContent = entry.updateNotes.join(" | ");
-    item.append(headline, notes);
-    refs.historyList.append(item);
-  });
+  if (buildInfo.historyEntries.length === 0) {
+    appendEmptyListItem(refs.historyList, "暂无历史更新信息");
+  } else {
+    buildInfo.historyEntries.forEach((entry) => {
+      const item = document.createElement("li");
+      item.className = "setting-history-item";
+      const headline = document.createElement("p");
+      headline.className = "setting-history-head";
+      headline.textContent = `${entry.displayVersion} | git ${entry.gitHash} | ${entry.updatedAt}`;
+      const notes = document.createElement("p");
+      notes.className = "setting-history-notes";
+      notes.textContent = entry.updateNotes.join(" | ");
+      item.append(headline, notes);
+      refs.historyList.append(item);
+    });
+  }
   refs.historyFilePath.textContent = `本地更新文件：${buildInfo.historyFilePath ?? "-"}`;
   refs.openHistoryBtn.disabled = !isTauriRuntime() || !buildInfo.historyFilePath;
-  refs.openHistoryBtn.title = refs.openHistoryBtn.disabled ? "仅 Tauri 环境可打开本地更新文件" : "打开本地更新文件";
+  refs.openHistoryBtn.title = refs.openHistoryBtn.disabled
+    ? "仅 Tauri 环境可打开本地更新文件"
+    : "打开本地更新文件";
 }
 
 export function refreshSettingsPatternPreview(refs: SettingsPreviewRefs) {

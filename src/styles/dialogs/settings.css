@@ -119,6 +119,13 @@
   color: #334155;
 }
 
+.setting-history-scroll {
+  max-height: min(240px, 36vh);
+  overflow-y: auto;
+  padding-right: 6px;
+  scrollbar-gutter: stable;
+}
+
 .setting-history-item {
   display: grid;
   gap: 4px;

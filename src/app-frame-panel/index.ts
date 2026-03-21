@@ -1,11 +1,15 @@
 import { selectActionInFrame, selectFrameOnly, type Frame } from "@modules";
 import type { AppState } from "../app-state";
 
-type FramePanelState = Pick<AppState, "frames" | "selectedFrameId" | "selectedActionId" | "selectedAnnotationId">;
+type FramePanelState = Pick<
+  AppState,
+  "frames" | "selectedFrameId" | "selectedActionId" | "selectedAnnotationId"
+>;
 
 interface CreateFramePanelHandlersOptions {
   state: FramePanelState;
   refresh: () => void;
+  queueFramePanelScroll: (frameId: string) => void;
   setStatus: (message: string) => void;
   openFrameDescEditor: (frame: Frame) => void;
   duplicateFrameById: (frameId: string) => string | null;
@@ -19,6 +23,7 @@ export function createFramePanelHandlers(options: CreateFramePanelHandlersOption
   const {
     state,
     refresh,
+    queueFramePanelScroll,
     setStatus,
     openFrameDescEditor,
     duplicateFrameById,
@@ -42,6 +47,7 @@ export function createFramePanelHandlers(options: CreateFramePanelHandlersOption
     onDuplicateFrame: (frameId: string) => {
       const duplicatedFrameId = duplicateFrameById(frameId);
       if (!duplicatedFrameId) return;
+      queueFramePanelScroll(duplicatedFrameId);
       refresh();
       setStatus("已在下一帧创建副本");
     },

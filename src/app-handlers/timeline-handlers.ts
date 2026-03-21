@@ -25,6 +25,7 @@ export function createTimelineHandlers(options: CreateAppEventHandlersOptions): 
   const {
     state,
     refresh,
+    queueFramePanelScroll,
     setStatus,
     toggleClearBeforeFrame,
     removeActions,
@@ -33,7 +34,9 @@ export function createTimelineHandlers(options: CreateAppEventHandlersOptions): 
 
   return {
     onAddEmptyFrame: () => {
-      state.frames = [...state.frames, createFrame()];
+      const newFrame = createFrame();
+      state.frames = [...state.frames, newFrame];
+      queueFramePanelScroll(newFrame.id);
       refresh();
       setStatus("已添加空帧");
     },

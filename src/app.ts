@@ -74,6 +74,7 @@ export function mountApp(root: HTMLDivElement) {
   } = queryAppDom(root);
 
   let refresh = () => {};
+  let queueFramePanelScroll: (frameId: string) => void = () => {};
   let syncStyleInputsFromSelected = () => {};
   const setStatus = (message: string) => {
     statusText.textContent = message;
@@ -89,6 +90,7 @@ export function mountApp(root: HTMLDivElement) {
       callbacks: createCanvasCallbacks({
         state,
         refresh: () => refresh(),
+        queueFramePanelScroll: (frameId) => queueFramePanelScroll(frameId),
         setStatus,
         syncStyleInputsFromSelected: () => syncStyleInputsFromSelected()
       })
@@ -149,6 +151,7 @@ export function mountApp(root: HTMLDivElement) {
     root: frameListPanel,
     state,
     refresh: () => refresh(),
+    queueFramePanelScroll: (frameId) => queueFramePanelScroll(frameId),
     setStatus
   });
   const refreshRuntime = createAppRefreshRuntime({
@@ -172,6 +175,7 @@ export function mountApp(root: HTMLDivElement) {
     timelineSortableSystem
   });
   refresh = refreshRuntime.refresh;
+  queueFramePanelScroll = refreshRuntime.queueFramePanelScroll;
   syncStyleInputsFromSelected = refreshRuntime.syncStyleInputsFromSelected;
 
   const appEventHandlers = createAppEventHandlers({
@@ -204,9 +208,11 @@ export function mountApp(root: HTMLDivElement) {
     loadImageSource: (imageSource) => controller.loadImageSource(imageSource),
     refreshCanvas: () => controller.refreshCanvas(),
     getDropImageFile: (dataTransfer) => controller.getDropImageFile(dataTransfer),
+    queueFramePanelScroll: (frameId) => queueFramePanelScroll(frameId),
     toggleClearBeforeFrame,
     removeActions,
-    loadImage: (file, sourcePath) => controller.loadImage(file, sanitizeFileInputPath(sourcePath, file.name)),
+    loadImage: (file, sourcePath) =>
+      controller.loadImage(file, sanitizeFileInputPath(sourcePath, file.name)),
     exportProject: projectRuntime.exportProject,
     importProject: projectRuntime.importProject,
     runExport: exportRuntime.runExport

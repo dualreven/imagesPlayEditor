@@ -175,9 +175,11 @@ export const APP_TEMPLATE = `
         </section>
         <section class="settings-info-block">
           <h4>历史更新信息</h4>
-          <ol id="setting-history-list" class="setting-history-list">
-            <li>暂无历史更新信息</li>
-          </ol>
+          <div class="setting-history-scroll">
+            <ol id="setting-history-list" class="setting-history-list">
+              <li>暂无历史更新信息</li>
+            </ol>
+          </div>
           <p id="setting-history-file-path" class="setting-history-file-path">本地更新文件：-</p>
           <div class="actions">
             <button id="setting-open-history-btn" type="button">打开本地更新文件</button>

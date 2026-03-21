@@ -5,6 +5,7 @@ export interface RenderFramePanelOptions {
   frames: Frame[];
   actions: Map<string, TimelineStep>;
   annotations: Map<string, Annotation>;
+  scrollToFrameId?: string | null;
   clearBeforeFrameIds: ReadonlySet<string>;
   selectedFrameId: string | null;
   selectedActionId: string | null;
